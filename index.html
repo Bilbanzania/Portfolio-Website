@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitchell Laypath - Full-Stack Development</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <button class="nav-toggler" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <nav class="main-nav">
+        <div class="nav-logo">
+            <img src="media/Brand Logo_Laypath.png" alt="Mitchell Laypath Logo">
+        </div>
+        <ul>
+            <li><a href="#home" id="nav-home">Home</a></li>
+            <li><a href="#projects" id="nav-projects">Case Studies</a></li>
+            <li><a href="#live" id="nav-live">Live Projects</a></li>
+            <li><a href="#contact" id="nav-contact">Contact</a></li>
+        </ul>
+        <div class="nav-footer">
+            <button id="theme-toggle" aria-label="Toggle theme">
+                <span class="icon-sun">&#9728;</span>
+                <span class="icon-moon">&#9790;</span>
+            </button>
+            <p id="nav-copyright">© Mitchell Laypath</p>
+        </div>
+    </nav>
+
+    <main class="page-content" id="app-root"></main>
+
+    <div class="image-modal" id="image-modal">
+        <span class="modal-close" id="modal-close">&times;</span>
+        <div class="modal-content">
+            <img src="" alt="Enlarged project image" class="modal-image" id="modal-image">
+            <p class="modal-caption" id="modal-caption"></p>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

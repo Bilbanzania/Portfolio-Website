@@ -1,0 +1,801 @@
+/* --- 1. Global Setup & Color Variables --- */
+:root {
+    --bg-main: #1A1820;
+    --bg-panel: #2C2A33;
+    --accent-primary: #DAE09B;
+    --accent-secondary: #8FB38F;
+    --text-body: #EAEAEA;
+    --text-on-accent: #1A1820;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --form-input-bg: var(--bg-main);
+}
+
+body.light-mode {
+    --bg-main: #F4F4F2;
+    --bg-panel: #FFFFFF;
+    --accent-primary: #2A4B3A;
+    --accent-secondary: #795548;
+    --text-body: #333333;
+    --text-on-accent: #FFFFFF;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --form-input-bg: #EAEAEA;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-body);
+    font-family: 'Open Sans', sans-serif;
+    transition: padding-left 0.5s cubic-bezier(0.77, 0, 0.175, 1), background-color 0.3s, color 0.3s;
+}
+
+.page-content {
+    padding: 0;
+    transition: padding-left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* --- 2. Navigation Toggler (Circle) --- */
+.nav-toggler {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    width: 60px;
+    height: 60px;
+    background: var(--bg-panel);
+    border: 2px solid var(--accent-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease-in-out, background 0.3s, border-color 0.3s, left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.nav-toggler span {
+    display: block;
+    width: 28px;
+    height: 3px;
+    background: var(--accent-primary);
+    border-radius: 2px;
+    margin: 2.5px 0;
+    transition: transform 0.4s ease, opacity 0.4s ease, background 0.3s;
+}
+
+/* --- 3. Vertical Navigation Bar --- */
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-panel);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1), background-color 0.3s;
+}
+
+.main-nav .nav-logo {
+    padding: 20px 30px;
+    text-align: left;
+}
+
+.main-nav .nav-logo img {
+    width: 100%;
+    max-width: 150px;
+    border-radius: 50%;
+}
+
+.main-nav ul {
+    list-style: none;
+    padding: 20px 0;
+    flex-grow: 1;
+}
+
+.main-nav ul li a {
+    display: block;
+    padding: 15px 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1rem;
+    color: var(--text-body);
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.main-nav ul li a:hover {
+    background-color: var(--accent-primary);
+    color: var(--text-on-accent);
+}
+
+.nav-footer {
+    padding: 20px 30px;
+    font-size: 0.9rem;
+    color: var(--accent-secondary);
+    text-align: center;
+}
+
+/* --- 4. JS-Toggled "Open" State --- */
+body.nav-open .nav-toggler {
+    transform: rotate(360deg);
+    left: 300px;
+}
+
+body.nav-open .nav-toggler span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+body.nav-open .nav-toggler span:nth-child(2) {
+    opacity: 0;
+}
+
+body.nav-open .nav-toggler span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+body.nav-open .main-nav {
+    transform: translateX(0);
+}
+
+body.nav-open .page-content {
+    padding-left: 280px;
+}
+
+/* --- 5. Theme Toggle Button --- */
+#theme-toggle {
+    background: none;
+    border: 2px solid var(--accent-secondary);
+    color: var(--accent-secondary);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#theme-toggle:hover {
+    background: var(--accent-secondary);
+    color: var(--bg-panel);
+}
+
+#theme-toggle .icon-sun,
+#theme-toggle .icon-moon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#theme-toggle .icon-sun {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(15deg);
+}
+
+#theme-toggle .icon-moon {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0);
+}
+
+body.light-mode #theme-toggle .icon-sun {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0);
+}
+
+body.light-mode #theme-toggle .icon-moon {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-15deg);
+}
+
+/* --- 6. Re-usable Components --- */
+.section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    color: var(--accent-primary);
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeIn 1s ease-out;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 12px 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
+    border-radius: 50px;
+    border: 2px solid var(--accent-primary);
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover, .cta-button:focus {
+    background: transparent;
+    color: var(--accent-primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+/* --- 7. Hero Section --- */
+.hero-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+    position: relative;
+    overflow: hidden;
+    background-image: url('media/Kitty_Dreams.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: var(--bg-main);
+}
+
+.hero-scrim {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-main);
+    opacity: 0.7;
+    z-index: 1;
+    transition: background 0.3s;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    animation: fadeInHero 1.5s ease-out;
+}
+
+.hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5rem;
+    color: var(--accent-primary);
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    color: var(--text-body);
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+}
+
+/* --- 8. About Me Section --- */
+.about-section {
+    padding: 6rem 40px;
+    background: var(--bg-panel);
+    position: relative;
+    z-index: 5;
+    transition: background-color 0.3s;
+}
+
+.about-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    /* Image | Text */
+    gap: 3rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    align-items: center;
+}
+
+.about-image img {
+    width: 100%;
+    border-radius: 50%;
+    border: 4px solid var(--accent-primary);
+    box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.about-text .section-title {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.about-text p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    color: var(--text-body);
+}
+
+/* --- 9. Project Section --- */
+.project-section {
+    padding: 6rem 40px;
+    background: var(--bg-main);
+    position: relative;
+    z-index: 5;
+    transition: background-color 0.3s;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.project-card {
+    background: var(--bg-panel);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.project-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.card-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: #000;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.project-card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    color: var(--accent-primary);
+    margin-bottom: 0.75rem;
+}
+
+.card-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-body);
+    margin-bottom: 1.5rem;
+    height: 4.5rem;
+    overflow: hidden;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin-bottom: 1.5rem;
+    padding: 0;
+}
+
+.card-tags li {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--bg-main);
+    color: var(--accent-secondary);
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.card-button {
+    display: inline-block;
+    padding: 10px 24px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    background: transparent;
+    color: var(--accent-secondary);
+    border: 2px solid var(--accent-secondary);
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.card-button:hover, .card-button:focus {
+    background: var(--accent-secondary);
+    color: var(--bg-panel);
+    outline: none;
+}
+
+/* --- 10. Contact Section --- */
+.contact-section {
+    padding: 6rem 40px;
+    background: var(--bg-panel);
+    position: relative;
+    z-index: 5;
+    transition: background-color 0.3s;
+}
+
+.contact-intro {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-body);
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 3rem;
+}
+
+.contact-form {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent-secondary);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--form-input-bg);
+    border: 2px solid var(--form-input-bg);
+    border-radius: 6px;
+    color: var(--text-body);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 8px rgba(218, 224, 155, 0.3);
+}
+
+.contact-form .cta-button {
+    width: 100%;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+
+/* --- 11. Footer --- */
+.main-footer {
+    padding: 2rem 40px;
+    text-align: center;
+    background: var(--bg-main);
+    color: var(--accent-secondary);
+    font-size: 0.9rem;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 500;
+    width: 50px;
+    height: 50px;
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
+    font-size: 1.5rem;
+    text-decoration: none;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+}
+
+body.scrolled .back-to-top {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- 12. Project Detail Page --- */
+.project-hero {
+    height: 40vh;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 2.5rem 40px;
+    background-size: cover;
+    background-position: center;
+}
+
+.project-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3rem;
+    color: var(--accent-primary);
+    position: relative;
+    z-index: 2;
+}
+
+.project-content-wrapper {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 40px;
+}
+
+.project-main-content h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2rem;
+    color: var(--accent-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-secondary);
+}
+
+.project-main-content p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.project-sidebar {
+    background: var(--bg-panel);
+    padding: 1.5rem;
+    border-radius: 8px;
+    height: fit-content;
+    position: sticky;
+    top: 40px;
+}
+
+.project-sidebar h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3rem;
+    color: var(--accent-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.project-sidebar p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.project-sidebar .cta-button {
+    width: 100%;
+    text-align: center;
+}
+
+.project-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.project-gallery figure {
+    margin: 0;
+}
+
+.project-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    border: 1px solid var(--bg-panel);
+    cursor: zoom-in;
+}
+
+.project-gallery figcaption {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--accent-secondary);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+/* --- 13. Animations & Responsive --- */
+@keyframes fadeInHero {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 900px) {
+    body.nav-open .page-content {
+        padding-left: 0;
+    }
+
+    .about-wrapper {
+        grid-template-columns: 1fr;
+        /* Stack on mobile */
+        text-align: center;
+    }
+
+    .about-image img {
+        max-width: 250px;
+        margin: 0 auto 2rem;
+    }
+
+    .about-text .section-title {
+        text-align: center;
+        /* Center on mobile */
+    }
+
+    .project-content-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .project-sidebar {
+        grid-row: 1;
+        position: static;
+    }
+
+    .project-gallery {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- 14. Image Modal (Lightbox) Styles --- */
+.image-modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-modal.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: #fff;
+    font-size: 3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: var(--accent-primary);
+}
+
+.modal-content {
+    text-align: center;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 80vh;
+    border-radius: 4px;
+}
+
+.modal-caption {
+    margin-top: 1rem;
+    color: #ccc;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+/* --- 15. Live Projects Page Styles --- */
+.live-projects-section {
+    padding: 6rem 40px;
+    background: var(--bg-main);
+    position: relative;
+    z-index: 5;
+    transition: background-color 0.3s;
+    min-height: 100vh;
+}
+
+.project-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tab-button {
+    padding: 10px 24px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    background: transparent;
+    color: var(--accent-secondary);
+    border: 2px solid var(--accent-secondary);
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.tab-button:hover {
+    background: var(--accent-secondary);
+    color: var(--bg-panel);
+}
+
+.tab-button.active {
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
+    border-color: var(--accent-primary);
+}
+
+.iframe-container {
+    width: 100%;
+    height: 75vh;
+    border: 2px solid var(--bg-panel);
+    border-radius: 8px;
+    overflow: hidden;
+    display: none;
+}
+
+.iframe-container.active {
+    display: block;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
