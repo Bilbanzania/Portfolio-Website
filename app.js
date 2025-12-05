@@ -1,4 +1,3 @@
-// Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. Get Core Elements ---
@@ -6,13 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const navToggler = document.querySelector('.nav-toggler');
     const appRoot = document.getElementById('app-root');
 
-    // Modal/Lightbox elements
     const imageModal = document.getElementById('image-modal');
     const modalImage = document.getElementById('modal-image');
     const modalCaption = document.getElementById('modal-caption');
     const modalClose = document.getElementById('modal-close');
 
-    // Get and set current year in the navigation footer
     const currentYear = new Date().getFullYear();
     document.getElementById('nav-copyright').innerHTML = `© ${currentYear} Mitchell Laypath`;
 
@@ -24,6 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeNav = () => {
         body.classList.remove('nav-open');
     }
+
+    // Helper function to highlight the active nav link
+    const setActiveLink = (activeId) => {
+        document.querySelectorAll('.main-nav ul li a').forEach(link => {
+            link.classList.remove('active-link');
+        });
+        const activeLink = document.getElementById(activeId);
+        if (activeLink) {
+            activeLink.classList.add('active-link');
+        }
+    };
 
     // --- 3. Theme Toggle Logic ---
     const themeToggleButton = document.getElementById('theme-toggle');
@@ -61,14 +69,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. SPA Page Rendering Logic ---
+    // --- 5. Scroll Animation Observer (MOVED HERE TO FIX ERROR) ---
+    const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                scrollObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    const observeElements = () => {
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+            scrollObserver.observe(el);
+        });
+    };
+
+    // --- 6. SPA Page Rendering Logic ---
 
     // Function: renderHomePage
     const renderHomePage = () => {
+        setActiveLink('nav-home');
+
         const projectCardsHTML = projectsData.map(project => `
-            <article class="project-card" data-project-id="${project.id}">
+            <article class="project-card reveal-on-scroll" data-project-id="${project.id}">
                 <div class="card-image">
-                    <img src="${project.heroImage}" alt="${project.altText}">
+                    <img loading="lazy" src="${project.heroImage}" alt="${project.altText}">
                 </div>
                 <div class="card-content">
                     <h3 class="card-title">${project.title}</h3>
@@ -81,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </article>
         `).join('');
 
-        // UPDATED: Bio removed from hero, new About section added
         appRoot.innerHTML = `
             <section class="hero-section" id="home">
                 <div class="hero-scrim"></div>
@@ -92,10 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </section>
 
-            <section class="about-section" id="about">
+            <section class="about-section reveal-on-scroll" id="about">
                 <div class="about-wrapper">
                     <div class="about-image">
-                        <img src="media/Laypath-094.jpg" alt="A headshot of Mitchell Laypath.">
+                        <img loading="lazy" src="media/Laypath-094.jpg" alt="A headshot of Mitchell Laypath.">
                     </div>
                     <div class="about-text">
                         <h2 class="section-title">About Me</h2>
@@ -105,14 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </section>
 
-            <section class="project-section" id="projects">
+            <section class="project-section reveal-on-scroll" id="projects">
                 <h2 class="section-title">Case Studies</h2>
                 <div class="project-grid">
                     ${projectCardsHTML}
                 </div>
             </section>
 
-            <section class="contact-section" id="contact">
+            <section class="contact-section reveal-on-scroll" id="contact">
                 <h2 class="section-title">Let's Connect</h2>
                 <p class="contact-intro">
                     Have a project in mind or just want to say hi?
@@ -145,10 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
             </footer>
         `;
         window.scrollTo(0, 0);
+        observeElements(); // Watch new elements
     };
 
-    // Function: renderProjectPage
+    // Function: renderProjectDetailPage
     const renderProjectPage = (projectId) => {
+        setActiveLink('nav-projects');
+
         const project = projectsData.find(p => p.id === projectId);
         if (!project) {
             renderHomePage();
@@ -157,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const galleryHTML = project.gallery.map(item => `
             <figure>
-                <img src="${item.img}" alt="${item.alt}" class="gallery-image" data-caption="${item.caption}">
+                <img loading="lazy" src="${item.img}" alt="${item.alt}" class="gallery-image" data-caption="${item.caption}">
                 <figcaption>${item.caption}</figcaption>
             </figure>
         `).join('');
@@ -168,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h1 class="project-title">${project.title}</h1>
             </header>
 
-            <div class="project-content-wrapper">
+            <div class="project-content-wrapper reveal-on-scroll">
                 <aside class="project-sidebar">
                     <h3>Objective</h3>
                     <p>${project.objective}</p>
@@ -199,10 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
             </footer>
         `;
         window.scrollTo(0, 0);
+        observeElements(); // Watch new elements
     };
 
     // Function: renderLiveProjectsPage
     const renderLiveProjectsPage = () => {
+        setActiveLink('nav-live');
+
         const tabButtonsHTML = projectsData.map((project, index) => `
             <button class="tab-button ${index === 0 ? 'active' : ''}" data-target="iframe-${project.id}">
                 ${project.title}
@@ -216,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
 
         appRoot.innerHTML = `
-            <section class="live-projects-section" id="live">
+            <section class="live-projects-section reveal-on-scroll" id="live">
                 <h2 class="section-title">Live Projects</h2>
                 <div class="project-tabs">
                     ${tabButtonsHTML}
@@ -234,9 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </footer>
         `;
         window.scrollTo(0, 0);
+        observeElements(); // Watch new elements
     };
 
-    // --- 6. Event Listeners for "Routing" & Interactions ---
+    // --- 7. Event Listeners for "Routing" & Interactions ---
     appRoot.addEventListener('click', (e) => {
 
         // Project Card Click
@@ -304,9 +338,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-projects').addEventListener('click', (e) => {
         e.preventDefault();
-        renderHomePage();
+        // If not on homepage, render it first, then scroll
+        if (!document.getElementById('projects')) {
+            renderHomePage();
+        }
+        // Wait for render, then scroll
         setTimeout(() => {
             document.querySelector('#projects').scrollIntoView({ behavior: 'smooth' });
+            setActiveLink('nav-projects'); // Set active after scroll
         }, 100);
         closeNav();
     });
@@ -319,15 +358,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-contact').addEventListener('click', (e) => {
         e.preventDefault();
-        renderHomePage();
+        // If not on homepage, render it first, then scroll
+        if (!document.getElementById('contact')) {
+            renderHomePage();
+        }
+        // Wait for render, then scroll
         setTimeout(() => {
             document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
+            setActiveLink('nav-contact'); // Set active after scroll
         }, 100);
         closeNav();
     });
 
 
-    // --- 7. Lightbox Close Listeners ---
+    // --- 8. Lightbox Close Listeners ---
     const closeModal = () => {
         imageModal.classList.remove('visible');
         setTimeout(() => {
@@ -344,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 8. Initial Page Load ---
+    // --- 9. Initial Page Load ---
     renderHomePage();
 
 });
