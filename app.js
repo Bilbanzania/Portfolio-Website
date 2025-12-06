@@ -9,7 +9,7 @@ const supabase = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANO
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Core Elements ---
+    // --- 2. CORE ELEMENTS ---
     const body = document.body;
     const navToggler = document.querySelector('.nav-toggler');
     const appRoot = document.getElementById('app-root');
@@ -21,7 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentYear = new Date().getFullYear();
     document.getElementById('nav-copyright').innerHTML = `© ${currentYear} Mitchell Laypath`;
 
-    // --- Navigation Logic ---
+    // --- 3. TOAST NOTIFICATION HELPER ---
+    const showToast = (message, type = 'success') => {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.classList.add('show'); }, 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { document.body.removeChild(toast); }, 300);
+        }, 3000);
+    };
+
+    // --- 4. NAVIGATION LOGIC ---
     navToggler.addEventListener('click', () => {
         body.classList.toggle('nav-open');
     });
@@ -40,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Theme Logic ---
+    // --- 5. THEME LOGIC ---
     const themeToggleButton = document.getElementById('theme-toggle');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     let currentTheme = localStorage.getItem('theme');
@@ -67,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', theme);
     });
 
-    // --- Scroll Animations ---
+    // --- 6. SCROLL ANIMATIONS ---
     window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {
             body.classList.add('scrolled');
@@ -91,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- RENDER FUNCTION: HOME PAGE ---
+    // --- 7. RENDER FUNCTION: HOME PAGE ---
     const renderHomePage = () => {
         setActiveLink('nav-home');
 
@@ -170,14 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     Fill out the form below, and I'll get back to you.
                 </p>
                 
-                <form class="contact-form">
+                <form class="contact-form" novalidate>
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name" placeholder="Jane Doe" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" placeholder="jane@example.com" required>
                     </div>
 
                     <div style="display: none; visibility: hidden; opacity: 0;">
@@ -187,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <div class="form-group">
                         <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="6" required></textarea>
+                        <textarea id="message" name="message" rows="6" placeholder="Hi Mitchell! I'd love to discuss a project..." required></textarea>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="cta-button">Send Message</button>
@@ -205,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attachContactFormListener();
     };
 
-    // --- RENDER FUNCTION: PROJECT DETAIL ---
+    // --- 8. RENDER FUNCTION: PROJECT DETAIL ---
     const renderProjectPage = (projectId) => {
         setActiveLink('nav-portfolio');
         const project = projectsData.find(p => p.id === projectId);
@@ -260,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.project-title').focus();
         observeElements();
 
-        // Slideshow Logic
         let slideIndex = 1;
         const slides = document.querySelectorAll('.slide');
         const showSlides = (n) => {
@@ -278,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- RENDER FUNCTION: LIVE PROJECTS ---
+    // --- 9. RENDER FUNCTION: LIVE PROJECTS ---
     const renderLiveProjectsPage = () => {
         setActiveLink('nav-live');
 
@@ -313,40 +325,105 @@ document.addEventListener('DOMContentLoaded', () => {
         observeElements();
     };
 
-    // --- CONTACT FORM HANDLER ---
+    // --- 10. CONTACT FORM HANDLER WITH GRANULAR VALIDATION ---
     const attachContactFormListener = () => {
         const contactForm = document.querySelector('.contact-form');
+
         if (contactForm) {
+            const isValidEmail = (email) => {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(String(email).toLowerCase());
+            };
+
+            const inputs = contactForm.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    input.classList.remove('input-error');
+                });
+            });
+
             contactForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const submitBtn = contactForm.querySelector('button');
                 const originalBtnText = submitBtn.textContent;
+
+                const nameInput = document.getElementById('name');
+                const emailInput = document.getElementById('email');
+                const messageInput = document.getElementById('message');
+                const honeypotInput = document.getElementById('confirm_email');
+
+                const nameValue = nameInput.value.trim();
+                const emailValue = emailInput.value.trim();
+                const messageValue = messageInput.value.trim();
+
+                // Validation Status
+                const isNameEmpty = !nameValue;
+                const isEmailInvalid = !isValidEmail(emailValue);
+                const isMessageEmpty = !messageValue;
+                const isMessageShort = messageValue.length < 50;
+
+                // 1. Check if EVERYTHING is empty
+                if (isNameEmpty && isEmailInvalid && isMessageEmpty) {
+                    nameInput.classList.add('input-error');
+                    emailInput.classList.add('input-error');
+                    messageInput.classList.add('input-error');
+                    showToast("Please fill out all fields to continue.", "error");
+                    return;
+                }
+
+                // 2. Check Name
+                if (isNameEmpty) {
+                    nameInput.classList.add('input-error');
+                    showToast("Please enter your name.", "error");
+                    return;
+                }
+
+                // 3. Check Email
+                if (isEmailInvalid) {
+                    emailInput.classList.add('input-error');
+                    showToast("Please enter a valid email address.", "error");
+                    return;
+                }
+
+                // 4. Check Message Content
+                if (isMessageEmpty) {
+                    messageInput.classList.add('input-error');
+                    showToast("Please enter a message.", "error");
+                    return;
+                }
+
+                // 5. Check Message Length (Must be >= 50 chars)
+                if (isMessageShort) {
+                    messageInput.classList.add('input-error');
+                    showToast(`Your message is too short (${messageValue.length}/50 chars).`, "error");
+                    return;
+                }
+
+                // Proceed if no errors
                 submitBtn.textContent = 'Sending...';
                 submitBtn.disabled = true;
 
-                // Gather data including the honeypot
                 const formData = {
-                    name: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    message: document.getElementById('message').value,
-                    honeypot: document.getElementById('confirm_email').value
+                    name: nameValue,
+                    email: emailValue,
+                    message: messageValue,
+                    honeypot: honeypotInput.value
                 };
 
                 try {
-                    // Call Supabase Edge Function
                     const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
                         body: formData
                     });
 
                     if (error) throw error;
 
-                    alert('Message sent successfully! I will get back to you soon.');
+                    showToast("Message sent successfully!", "success");
                     contactForm.reset();
                     submitBtn.textContent = 'Sent!';
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Something went wrong. Please try again later.');
+                    showToast("Failed to send message. Please try again.", "error");
                     submitBtn.textContent = originalBtnText;
                 } finally {
                     setTimeout(() => {
@@ -358,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- EVENT LISTENERS (ROUTING) ---
+    // --- 11. EVENT LISTENERS (ROUTING) ---
     appRoot.addEventListener('click', (e) => {
         const projectLink = e.target.closest('[data-project-id]');
         if (projectLink) {
@@ -407,7 +484,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-home').addEventListener('click', (e) => { e.preventDefault(); renderHomePage(); closeNav(); });
     document.getElementById('nav-live').addEventListener('click', (e) => { e.preventDefault(); renderLiveProjectsPage(); closeNav(); });
 
-    // Smooth scrolling for sections
     const handleSectionScroll = (id) => {
         if (!document.getElementById(id)) {
             renderHomePage();
@@ -424,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-portfolio').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('portfolio'); });
     document.getElementById('nav-contact').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('contact'); });
 
-    // Lightbox Close Logic
     const closeModal = () => {
         imageModal.classList.remove('visible');
         setTimeout(() => { modalImage.src = ""; modalCaption.textContent = ""; }, 300);
@@ -432,6 +507,5 @@ document.addEventListener('DOMContentLoaded', () => {
     modalClose.addEventListener('click', closeModal);
     imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
 
-    // Initial Load
     renderHomePage();
 });
