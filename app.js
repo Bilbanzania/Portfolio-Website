@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. Scroll Animation Observer (MOVED HERE TO FIX ERROR) ---
+    // --- 5. Scroll Animation Observer ---
     const scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </section>
 
-            <section class="project-section reveal-on-scroll" id="projects">
-                <h2 class="section-title">Case Studies</h2>
+            <section class="project-section reveal-on-scroll" id="portfolio">
+                <h2 class="section-title">Portfolio</h2>
                 <div class="project-grid">
                     ${projectCardsHTML}
                 </div>
@@ -172,12 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </footer>
         `;
         window.scrollTo(0, 0);
-        observeElements(); // Watch new elements
+        observeElements();
     };
 
     // Function: renderProjectDetailPage
     const renderProjectPage = (projectId) => {
-        setActiveLink('nav-projects');
+        setActiveLink('nav-portfolio');
 
         const project = projectsData.find(p => p.id === projectId);
         if (!project) {
@@ -185,12 +185,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const galleryHTML = project.gallery.map(item => `
-            <figure>
-                <img loading="lazy" src="${item.img}" alt="${item.alt}" class="gallery-image" data-caption="${item.caption}">
-                <figcaption>${item.caption}</figcaption>
-            </figure>
-        `).join('');
+        // Updated Slideshow HTML Generation
+        const galleryHTML = `
+            <div class="slideshow-container">
+                ${project.gallery.map((item, index) => `
+                    <div class="slide fade ${index === 0 ? 'active' : ''}">
+                        <figure>
+                            <img loading="lazy" src="${item.img}" alt="${item.alt}" class="gallery-image" data-caption="${item.caption}">
+                            <figcaption>${item.caption}</figcaption>
+                        </figure>
+                        <div class="slide-number-text">${index + 1} / ${project.gallery.length}</div>
+                    </div>
+                `).join('')}
+                <a class="prev" id="prev-slide">&#10094;</a>
+                <a class="next" id="next-slide">&#10095;</a>
+            </div>
+        `;
 
         appRoot.innerHTML = `
             <header class="project-hero" style="background-image: url('${project.heroImage}');">
@@ -207,17 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="${project.githubLink}" class="cta-button" target="_blank" rel="noopener noreferrer">
                         View on GitHub
                     </a>
-                </aside>
+                    
+                    <h2 style="margin-top: 2rem;">Project Gallery</h2>
+                    ${galleryHTML} </aside>
 
                 <section class="project-main-content">
                     <h2>Process</h2>
                     <p>${project.process}</p>
                     <h2>Results</h2>
                     <p>${project.results}</p>
-                    <h2>Project Gallery</h2>
-                    <div class="project-gallery">
-                        ${galleryHTML}
-                    </div>
                 </section>
             </div>
             
@@ -229,7 +237,32 @@ document.addEventListener('DOMContentLoaded', () => {
             </footer>
         `;
         window.scrollTo(0, 0);
-        observeElements(); // Watch new elements
+        observeElements();
+
+        // Slideshow Logic
+        let slideIndex = 1;
+        const slides = document.querySelectorAll('.slide');
+
+        const showSlides = (n) => {
+            if (n > slides.length) slideIndex = 1;
+            if (n < 1) slideIndex = slides.length;
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[slideIndex - 1].classList.add('active');
+        };
+
+        const plusSlides = (n) => {
+            showSlides(slideIndex += n);
+        };
+
+        // Attach listeners to the newly created buttons
+        const prevBtn = document.getElementById('prev-slide');
+        const nextBtn = document.getElementById('next-slide');
+
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', () => plusSlides(-1));
+            nextBtn.addEventListener('click', () => plusSlides(1));
+        }
     };
 
     // Function: renderLiveProjectsPage
@@ -267,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </footer>
         `;
         window.scrollTo(0, 0);
-        observeElements(); // Watch new elements
+        observeElements();
     };
 
     // --- 7. Event Listeners for "Routing" & Interactions ---
@@ -336,16 +369,26 @@ document.addEventListener('DOMContentLoaded', () => {
         closeNav();
     });
 
-    document.getElementById('nav-projects').addEventListener('click', (e) => {
+    document.getElementById('nav-about').addEventListener('click', (e) => {
         e.preventDefault();
-        // If not on homepage, render it first, then scroll
-        if (!document.getElementById('projects')) {
+        if (!document.getElementById('about')) {
             renderHomePage();
         }
-        // Wait for render, then scroll
         setTimeout(() => {
-            document.querySelector('#projects').scrollIntoView({ behavior: 'smooth' });
-            setActiveLink('nav-projects'); // Set active after scroll
+            document.querySelector('#about').scrollIntoView({ behavior: 'smooth' });
+            setActiveLink('nav-about');
+        }, 100);
+        closeNav();
+    });
+
+    document.getElementById('nav-portfolio').addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!document.getElementById('portfolio')) {
+            renderHomePage();
+        }
+        setTimeout(() => {
+            document.querySelector('#portfolio').scrollIntoView({ behavior: 'smooth' });
+            setActiveLink('nav-projects');
         }, 100);
         closeNav();
     });
@@ -358,14 +401,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-contact').addEventListener('click', (e) => {
         e.preventDefault();
-        // If not on homepage, render it first, then scroll
         if (!document.getElementById('contact')) {
             renderHomePage();
         }
-        // Wait for render, then scroll
         setTimeout(() => {
             document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
-            setActiveLink('nav-contact'); // Set active after scroll
+            setActiveLink('nav-contact');
         }, 100);
         closeNav();
     });
