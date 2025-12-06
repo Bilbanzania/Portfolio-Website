@@ -1,10 +1,18 @@
+// --- 1. CONFIGURATION ---
+const SUPABASE_PROJECT_URL = 'https://fidzotxqwlhzgztnskbu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZHpvdHhxd2xoemd6dG5za2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1ODk4MzMsImV4cCI6MjA2MjE2NTgzM30.aH0Hy1cGz-9pZRRsyS5_DId9IKCgalNo6d56aNwQisc';
+const FUNCTION_NAME = 'portfolio';
+// ------------------------
+
+// Initialize Supabase Client
+const supabase = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Get Core Elements ---
+    // --- Core Elements ---
     const body = document.body;
     const navToggler = document.querySelector('.nav-toggler');
     const appRoot = document.getElementById('app-root');
-
     const imageModal = document.getElementById('image-modal');
     const modalImage = document.getElementById('modal-image');
     const modalCaption = document.getElementById('modal-caption');
@@ -13,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentYear = new Date().getFullYear();
     document.getElementById('nav-copyright').innerHTML = `© ${currentYear} Mitchell Laypath`;
 
-    // --- 2. Navigation Toggler Logic ---
+    // --- Navigation Logic ---
     navToggler.addEventListener('click', () => {
         body.classList.toggle('nav-open');
     });
@@ -22,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         body.classList.remove('nav-open');
     }
 
-    // Helper function to highlight the active nav link
     const setActiveLink = (activeId) => {
         document.querySelectorAll('.main-nav ul li a').forEach(link => {
             link.classList.remove('active-link');
@@ -33,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. Theme Toggle Logic ---
+    // --- Theme Logic ---
     const themeToggleButton = document.getElementById('theme-toggle');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     let currentTheme = localStorage.getItem('theme');
@@ -60,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', theme);
     });
 
-    // --- 4. Back-to-Top Button Logic ---
+    // --- Scroll Animations ---
     window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {
             body.classList.add('scrolled');
@@ -69,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. Scroll Animation Observer ---
     const scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -77,9 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollObserver.unobserve(entry.target);
             }
         });
-    }, {
-        threshold: 0.1
-    });
+    }, { threshold: 0.1 });
 
     const observeElements = () => {
         document.querySelectorAll('.reveal-on-scroll').forEach(el => {
@@ -87,9 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 6. SPA Page Rendering Logic ---
-
-    // Function: renderHomePage
+    // --- RENDER FUNCTION: HOME PAGE ---
     const renderHomePage = () => {
         setActiveLink('nav-home');
 
@@ -113,9 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <section class="hero-section" id="home">
                 <div class="hero-scrim"></div>
                 <div class="hero-content">
-                    <h1 class="hero-title">Mitchell Laypath</h1>
-                    <h2 class="hero-subtitle">Full-stack Website Development</h2>
-                    <a href="#live" class="cta-button" id="hero-cta-button">View My Work</a>
+                    <h1 class="hero-title" tabindex="-1">Mitchell Laypath</h1>
+                    <h2 class="hero-subtitle">Full-Stack Developer & IT Specialist</h2>
+                    <div class="hero-buttons">
+                        <a href="#live" class="cta-button" id="hero-cta-button">View My Work</a>
+                        <a href="media/Current Resume_Laypath.pdf" class="cta-button secondary" download>Download Resume</a>
+                    </div>
                 </div>
             </section>
 
@@ -126,8 +131,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="about-text">
                         <h2 class="section-title">About Me</h2>
-                        <p>A creative and detail-oriented developer specializing in building dynamic, responsive, and accessible web experiences from the ground up.</p>
-                        <p>I have experience with the full stack, from building agent-based simulations in Unity/C# and interactive front-ends with vanilla JavaScript, to connecting to third-party APIs for live data. I'm passionate about clean code, user-friendly design, and bringing complex ideas to life on the web.</p>
+                        <p>I am a Full-Stack Developer with a strong foundation in object-oriented programming (Java, C#) and IT support. I graduated from <strong>Arizona State University</strong> with a B.S. in Full-Stack Web Development (3.88 GPA).</p>
+                        <p>Beyond code, I have professional experience as a <strong>Support Analyst</strong> for the Arizona Supreme Court, where I honed my troubleshooting and problem-solving skills.</p>
+                        
+                        <div class="skills-container">
+                            <h3>Tech Stack</h3>
+                            <ul class="skills-list">
+                                <li>JavaScript (ES6+)</li>
+                                <li>C# & Unity</li>
+                                <li>Node.js & Express</li>
+                                <li>Supabase & SQL</li>
+                                <li>HTML5 & CSS3</li>
+                                <li>Git & GitHub</li>
+                            </ul>
+                        </div>
+                         <div class="skills-container" style="margin-top: 1.5rem;">
+                            <h3>Education & Global Experience</h3>
+                            <ul class="skills-list" style="display: block;">
+                                <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🎓 <strong>Arizona State University</strong> - B.S. Full-Stack Web Development</li>
+                                <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🌏 <strong>Waseda University (Tokyo, Japan)</strong> - Study Abroad (Visualization & Simulation)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -145,7 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     Have a project in mind or just want to say hi?
                     Fill out the form below, and I'll get back to you.
                 </p>
-                <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                
+                <form class="contact-form">
                     <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" id="name" name="name" required>
@@ -154,6 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" required>
                     </div>
+
+                    <div style="display: none; visibility: hidden; opacity: 0;">
+                         <label for="confirm_email">Don't fill this out</label>
+                         <input type="text" id="confirm_email" name="confirm_email" tabindex="-1" autocomplete="off">
+                    </div>
+
                     <div class="form-group">
                         <label for="message">Message</label>
                         <textarea id="message" name="message" rows="6" required></textarea>
@@ -165,27 +196,21 @@ document.addEventListener('DOMContentLoaded', () => {
             </section>
 
             <footer class="main-footer">
-                <a href="#" class="back-to-top" aria-label="Back to top">
-                    &#9650;
-                </a>
+                <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
         window.scrollTo(0, 0);
         observeElements();
+        attachContactFormListener();
     };
 
-    // Function: renderProjectDetailPage
+    // --- RENDER FUNCTION: PROJECT DETAIL ---
     const renderProjectPage = (projectId) => {
         setActiveLink('nav-portfolio');
-
         const project = projectsData.find(p => p.id === projectId);
-        if (!project) {
-            renderHomePage();
-            return;
-        }
+        if (!project) { renderHomePage(); return; }
 
-        // Updated Slideshow HTML Generation
         const galleryHTML = `
             <div class="slideshow-container">
                 ${project.gallery.map((item, index) => `
@@ -205,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appRoot.innerHTML = `
             <header class="project-hero" style="background-image: url('${project.heroImage}');">
                 <div class="hero-scrim"></div>
-                <h1 class="project-title">${project.title}</h1>
+                <h1 class="project-title" tabindex="-1">${project.title}</h1>
             </header>
 
             <div class="project-content-wrapper reveal-on-scroll">
@@ -214,13 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>${project.objective}</p>
                     <h3>Synopsis</h3>
                     <p>${project.synopsisDetail}</p>
-                    <a href="${project.githubLink}" class="cta-button" target="_blank" rel="noopener noreferrer">
-                        View on GitHub
-                    </a>
-                    
+                    <a href="${project.githubLink}" class="cta-button" target="_blank" rel="noopener noreferrer">View on GitHub</a>
                     <h2 style="margin-top: 2rem;">Project Gallery</h2>
-                    ${galleryHTML} </aside>
-
+                    ${galleryHTML} 
+                </aside>
                 <section class="project-main-content">
                     <h2>Process</h2>
                     <p>${project.process}</p>
@@ -230,42 +252,33 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             
             <footer class="main-footer">
-                <a href="#" class="back-to-top" aria-label="Back to top">
-                    &#9650;
-                </a>
+                <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
         window.scrollTo(0, 0);
+        document.querySelector('.project-title').focus();
         observeElements();
 
         // Slideshow Logic
         let slideIndex = 1;
         const slides = document.querySelectorAll('.slide');
-
         const showSlides = (n) => {
             if (n > slides.length) slideIndex = 1;
             if (n < 1) slideIndex = slides.length;
-
             slides.forEach(slide => slide.classList.remove('active'));
             slides[slideIndex - 1].classList.add('active');
         };
-
-        const plusSlides = (n) => {
-            showSlides(slideIndex += n);
-        };
-
-        // Attach listeners to the newly created buttons
+        const plusSlides = (n) => showSlides(slideIndex += n);
         const prevBtn = document.getElementById('prev-slide');
         const nextBtn = document.getElementById('next-slide');
-
         if (prevBtn && nextBtn) {
             prevBtn.addEventListener('click', () => plusSlides(-1));
             nextBtn.addEventListener('click', () => plusSlides(1));
         }
     };
 
-    // Function: renderLiveProjectsPage
+    // --- RENDER FUNCTION: LIVE PROJECTS ---
     const renderLiveProjectsPage = () => {
         setActiveLink('nav-live');
 
@@ -277,44 +290,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const iframesHTML = projectsData.map((project, index) => `
             <div class="iframe-container ${index === 0 ? 'active' : ''}" id="iframe-${project.id}">
+                 <div class="iframe-fallback">
+                    Trouble viewing? <a href="${project.liveSiteLink}" target="_blank" rel="noopener noreferrer">Open site in a new tab ↗</a>
+                </div>
                 <iframe src="${index === 0 ? project.liveSiteLink : ''}" data-src="${project.liveSiteLink}" title="${project.title}"></iframe>
             </div>
         `).join('');
 
         appRoot.innerHTML = `
             <section class="live-projects-section reveal-on-scroll" id="live">
-                <h2 class="section-title">Live Projects</h2>
-                <div class="project-tabs">
-                    ${tabButtonsHTML}
-                </div>
-                <div class="iframe-wrapper">
-                    ${iframesHTML}
-                </div>
+                <h2 class="section-title" tabindex="-1">Live Projects</h2>
+                <div class="project-tabs">${tabButtonsHTML}</div>
+                <div class="iframe-wrapper">${iframesHTML}</div>
             </section>
-            
             <footer class="main-footer">
-                <a href="#" class="back-to-top" aria-label="Back to top">
-                    &#9650;
-                </a>
+                <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
         window.scrollTo(0, 0);
+        document.querySelector('.section-title').focus();
         observeElements();
     };
 
-    // --- 7. Event Listeners for "Routing" & Interactions ---
-    appRoot.addEventListener('click', (e) => {
+    // --- CONTACT FORM HANDLER ---
+    const attachContactFormListener = () => {
+        const contactForm = document.querySelector('.contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-        // Project Card Click
+                const submitBtn = contactForm.querySelector('button');
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.textContent = 'Sending...';
+                submitBtn.disabled = true;
+
+                // Gather data including the honeypot
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    message: document.getElementById('message').value,
+                    honeypot: document.getElementById('confirm_email').value
+                };
+
+                try {
+                    // Call Supabase Edge Function
+                    const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
+                        body: formData
+                    });
+
+                    if (error) throw error;
+
+                    alert('Message sent successfully! I will get back to you soon.');
+                    contactForm.reset();
+                    submitBtn.textContent = 'Sent!';
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Something went wrong. Please try again later.');
+                    submitBtn.textContent = originalBtnText;
+                } finally {
+                    setTimeout(() => {
+                        submitBtn.textContent = originalBtnText;
+                        submitBtn.disabled = false;
+                    }, 3000);
+                }
+            });
+        }
+    };
+
+    // --- EVENT LISTENERS (ROUTING) ---
+    appRoot.addEventListener('click', (e) => {
         const projectLink = e.target.closest('[data-project-id]');
         if (projectLink) {
             e.preventDefault();
-            const projectId = projectLink.dataset.projectId;
-            renderProjectPage(projectId);
+            renderProjectPage(projectLink.dataset.projectId);
         }
 
-        // Hero CTA Click
         const heroCTA = e.target.closest('#hero-cta-button');
         if (heroCTA) {
             e.preventDefault();
@@ -322,14 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
             closeNav();
         }
 
-        // Back-to-Top Click
         const backToTop = e.target.closest('.back-to-top');
         if (backToTop) {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Gallery Image Click (Lightbox)
         const galleryImage = e.target.closest('.gallery-image');
         if (galleryImage) {
             modalImage.src = galleryImage.src;
@@ -337,99 +386,52 @@ document.addEventListener('DOMContentLoaded', () => {
             imageModal.classList.add('visible');
         }
 
-        // Live Project Tab Click
         const tabButton = e.target.closest('.tab-button');
         if (tabButton) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.iframe-container').forEach(container => {
                 container.classList.remove('active');
                 const iframe = container.querySelector('iframe');
-                if (iframe) {
-                    iframe.src = ""; // Stops the project
-                }
+                if (iframe) iframe.src = "";
             });
-
             tabButton.classList.add('active');
-
             const targetContainer = document.getElementById(tabButton.dataset.target);
             if (targetContainer) {
                 targetContainer.classList.add('active');
                 const targetIframe = targetContainer.querySelector('iframe');
-                if (targetIframe) {
-                    targetIframe.src = targetIframe.dataset.src; // Loads the new project
-                }
+                if (targetIframe) targetIframe.src = targetIframe.dataset.src;
             }
         }
     });
 
-    // Nav Link Listeners
-    document.getElementById('nav-home').addEventListener('click', (e) => {
-        e.preventDefault();
-        renderHomePage();
-        closeNav();
-    });
+    document.getElementById('nav-home').addEventListener('click', (e) => { e.preventDefault(); renderHomePage(); closeNav(); });
+    document.getElementById('nav-live').addEventListener('click', (e) => { e.preventDefault(); renderLiveProjectsPage(); closeNav(); });
 
-    document.getElementById('nav-about').addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!document.getElementById('about')) {
+    // Smooth scrolling for sections
+    const handleSectionScroll = (id) => {
+        if (!document.getElementById(id)) {
             renderHomePage();
+            setTimeout(() => {
+                document.querySelector('#' + id)?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        } else {
+            document.querySelector('#' + id)?.scrollIntoView({ behavior: 'smooth' });
         }
-        setTimeout(() => {
-            document.querySelector('#about').scrollIntoView({ behavior: 'smooth' });
-            setActiveLink('nav-about');
-        }, 100);
         closeNav();
-    });
-
-    document.getElementById('nav-portfolio').addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!document.getElementById('portfolio')) {
-            renderHomePage();
-        }
-        setTimeout(() => {
-            document.querySelector('#portfolio').scrollIntoView({ behavior: 'smooth' });
-            setActiveLink('nav-projects');
-        }, 100);
-        closeNav();
-    });
-
-    document.getElementById('nav-live').addEventListener('click', (e) => {
-        e.preventDefault();
-        renderLiveProjectsPage();
-        closeNav();
-    });
-
-    document.getElementById('nav-contact').addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!document.getElementById('contact')) {
-            renderHomePage();
-        }
-        setTimeout(() => {
-            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
-            setActiveLink('nav-contact');
-        }, 100);
-        closeNav();
-    });
-
-
-    // --- 8. Lightbox Close Listeners ---
-    const closeModal = () => {
-        imageModal.classList.remove('visible');
-        setTimeout(() => {
-            modalImage.src = "";
-            modalCaption.textContent = "";
-        }, 300);
     };
 
+    document.getElementById('nav-about').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('about'); });
+    document.getElementById('nav-portfolio').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('portfolio'); });
+    document.getElementById('nav-contact').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('contact'); });
+
+    // Lightbox Close Logic
+    const closeModal = () => {
+        imageModal.classList.remove('visible');
+        setTimeout(() => { modalImage.src = ""; modalCaption.textContent = ""; }, 300);
+    };
     modalClose.addEventListener('click', closeModal);
-    imageModal.addEventListener('click', (e) => {
-        if (e.target === imageModal) {
-            closeModal();
-        }
-    });
+    imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
 
-
-    // --- 9. Initial Page Load ---
+    // Initial Load
     renderHomePage();
-
 });
