@@ -1,10 +1,9 @@
 // --- 1. CONFIGURATION ---
 const SUPABASE_PROJECT_URL = 'https://fidzotxqwlhzgztnskbu.supabase.co';
+// NOTE: Ensure RLS policies are set in Supabase to protect this table!
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZHpvdHhxd2xoemd6dG5za2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1ODk4MzMsImV4cCI6MjA2MjE2NTgzM30.aH0Hy1cGz-9pZRRsyS5_DId9IKCgalNo6d56aNwQisc';
 const FUNCTION_NAME = 'portfolio';
-// ------------------------
 
-// Initialize Supabase Client
 const supabase = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalClose = document.getElementById('modal-close');
 
     const currentYear = new Date().getFullYear();
-    document.getElementById('nav-copyright').innerHTML = `© ${currentYear} Mitchell Laypath`;
+    const copyrightEl = document.getElementById('nav-copyright');
+    if (copyrightEl) copyrightEl.innerHTML = `© ${currentYear} Mitchell Laypath`;
+    const footerCopyright = document.getElementById('footer-copyright');
+    if (footerCopyright) footerCopyright.innerHTML = `© ${currentYear} Mitchell Laypath. All rights reserved.`;
 
     // --- 3. TOAST NOTIFICATION HELPER ---
     const showToast = (message, type = 'success') => {
@@ -30,27 +32,31 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { toast.classList.add('show'); }, 100);
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => { document.body.removeChild(toast); }, 300);
+            setTimeout(() => { if (toast.parentNode) document.body.removeChild(toast); }, 300);
         }, 3000);
     };
 
     // --- 4. NAVIGATION LOGIC ---
     navToggler.addEventListener('click', () => {
         body.classList.toggle('nav-open');
+        // Update ARIA attribute for accessibility
+        const isOpen = body.classList.contains('nav-open');
+        navToggler.setAttribute('aria-expanded', isOpen);
     });
 
     const closeNav = () => {
         body.classList.remove('nav-open');
+        navToggler.setAttribute('aria-expanded', 'false');
     }
 
-    const setActiveLink = (activeId) => {
+    const setActiveLink = (hash) => {
         document.querySelectorAll('.main-nav ul li a').forEach(link => {
             link.classList.remove('active-link');
+            // Check if link href matches current hash (or simplified check for sections)
+            if (link.getAttribute('href') === hash) {
+                link.classList.add('active-link');
+            }
         });
-        const activeLink = document.getElementById(activeId);
-        if (activeLink) {
-            activeLink.classList.add('active-link');
-        }
     };
 
     // --- 5. THEME LOGIC ---
@@ -74,11 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme('light');
     }
 
-    themeToggleButton.addEventListener('click', () => {
-        let theme = body.classList.contains('light-mode') ? 'dark' : 'light';
-        applyTheme(theme);
-        localStorage.setItem('theme', theme);
-    });
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', () => {
+            let theme = body.classList.contains('light-mode') ? 'dark' : 'light';
+            applyTheme(theme);
+            localStorage.setItem('theme', theme);
+        });
+    }
 
     // --- 6. SCROLL ANIMATIONS ---
     window.addEventListener('scroll', () => {
@@ -104,12 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 7. RENDER FUNCTION: HOME PAGE ---
-    const renderHomePage = () => {
-        setActiveLink('nav-home');
-
-        const projectCardsHTML = projectsData.map(project => `
-            <article class="project-card reveal-on-scroll" data-project-id="${project.id}">
+    // --- 7. RENDER HELPER: Generate Project Grid HTML ---
+    const generateProjectGridHTML = () => {
+        return projectsData.map(project => `
+            <article class="project-card reveal-on-scroll">
                 <div class="card-image">
                     <img loading="lazy" src="${project.heroImage}" alt="${project.altText}">
                 </div>
@@ -119,10 +125,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul class="card-tags">
                         ${project.tags.map(tag => `<li>${tag}</li>`).join('')}
                     </ul>
-                    <a href="#" class="card-button" data-project-id="${project.id}">View Case Study</a>
+                    <a href="#project-${project.id}" class="card-button">View Case Study</a>
                 </div>
             </article>
         `).join('');
+    };
+
+    // --- 8. RENDER FUNCTION: HOME PAGE ---
+    // Note: Much of this HTML is now hardcoded in index.html for SEO.
+    // This function re-renders it if the user navigates back from a sub-page.
+    const renderHomePage = (scrollToId = null) => {
+        // If we are already on the home view (check for a home-specific element), just scroll
+        if (document.getElementById('home')) {
+            if (scrollToId) {
+                setTimeout(() => {
+                    document.querySelector(scrollToId)?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            } else {
+                window.scrollTo(0, 0);
+            }
+            // Ensure listeners are attached if grid was empty (e.g. initial load vs re-render)
+            const grid = document.getElementById('static-project-grid');
+            if (grid && grid.innerHTML.trim() === '') {
+                grid.innerHTML = generateProjectGridHTML();
+                observeElements();
+                attachContactFormListener();
+            }
+            return;
+        }
+
+        // Full Re-render of Home
+        const projectCardsHTML = generateProjectGridHTML();
 
         appRoot.innerHTML = `
             <section class="hero-section" id="home">
@@ -140,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <section class="about-section reveal-on-scroll" id="about">
                 <div class="about-wrapper">
                     <div class="about-image">
-                        <img loading="lazy" src="media/Laypath-094.jpg" alt="A headshot of Mitchell Laypath.">
+                        <img loading="lazy" src="media/Laypath-094.webp" alt="A headshot of Mitchell Laypath.">
                     </div>
                     <div class="about-text">
                         <h2 class="section-title">About Me</h2>
@@ -171,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <section class="project-section reveal-on-scroll" id="portfolio">
                 <h2 class="section-title">Portfolio</h2>
-                <div class="project-grid">
+                <div class="project-grid" id="static-project-grid">
                     ${projectCardsHTML}
                 </div>
             </section>
@@ -213,14 +246,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
-        window.scrollTo(0, 0);
+
+        if (scrollToId) {
+            setTimeout(() => {
+                document.querySelector(scrollToId)?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        } else {
+            window.scrollTo(0, 0);
+        }
         observeElements();
         attachContactFormListener();
     };
 
-    // --- 8. RENDER FUNCTION: PROJECT DETAIL ---
+    // --- 9. RENDER FUNCTION: PROJECT DETAIL ---
     const renderProjectPage = (projectId) => {
-        setActiveLink('nav-portfolio');
         const project = projectsData.find(p => p.id === projectId);
         if (!project) { renderHomePage(); return; }
 
@@ -265,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             
             <footer class="main-footer">
-                <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
+                <a href="#home" class="cta-button secondary" style="margin-bottom: 1rem;">&larr; Back to Portfolio</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
@@ -273,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.project-title').focus();
         observeElements();
 
+        // Slideshow Logic
         let slideIndex = 1;
         const slides = document.querySelectorAll('.slide');
         const showSlides = (n) => {
@@ -290,10 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 9. RENDER FUNCTION: LIVE PROJECTS ---
+    // --- 10. RENDER FUNCTION: LIVE PROJECTS ---
     const renderLiveProjectsPage = () => {
-        setActiveLink('nav-live');
-
         const tabButtonsHTML = projectsData.map((project, index) => `
             <button class="tab-button ${index === 0 ? 'active' : ''}" data-target="iframe-${project.id}">
                 ${project.title}
@@ -316,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="iframe-wrapper">${iframesHTML}</div>
             </section>
             <footer class="main-footer">
-                <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
+                <a href="#home" class="cta-button secondary" style="margin-bottom: 1rem;">&larr; Back to Portfolio</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
@@ -325,137 +363,122 @@ document.addEventListener('DOMContentLoaded', () => {
         observeElements();
     };
 
-    // --- 10. CONTACT FORM HANDLER WITH GRANULAR VALIDATION ---
+    // --- 11. CONTACT FORM HANDLER (Optimized) ---
     const attachContactFormListener = () => {
         const contactForm = document.querySelector('.contact-form');
+        if (!contactForm) return;
 
-        if (contactForm) {
-            const isValidEmail = (email) => {
-                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return re.test(String(email).toLowerCase());
-            };
+        const inputs = contactForm.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => input.classList.remove('input-error'));
+        });
 
-            const inputs = contactForm.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    input.classList.remove('input-error');
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const messageInput = document.getElementById('message');
+            const honeypotInput = document.getElementById('confirm_email');
+            const submitBtn = contactForm.querySelector('button');
+            const originalBtnText = submitBtn.textContent;
+
+            // 1. Honeypot Check (Instant Reject)
+            if (honeypotInput.value) return;
+
+            // 2. Browser Native Validation check (checks 'required' and type='email')
+            if (!contactForm.checkValidity()) {
+                // Highlight invalid fields
+                inputs.forEach(input => {
+                    if (!input.validity.valid) input.classList.add('input-error');
                 });
-            });
+                showToast("Please fill out all required fields correctly.", "error");
+                return;
+            }
 
-            contactForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+            // 3. Custom Logic (Message Length)
+            const messageValue = messageInput.value.trim();
+            if (messageValue.length < 50) {
+                messageInput.classList.add('input-error');
+                showToast(`Your message is too short (${messageValue.length}/50 chars).`, "error");
+                return;
+            }
 
-                const submitBtn = contactForm.querySelector('button');
-                const originalBtnText = submitBtn.textContent;
+            // Proceed if valid
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
 
-                const nameInput = document.getElementById('name');
-                const emailInput = document.getElementById('email');
-                const messageInput = document.getElementById('message');
-                const honeypotInput = document.getElementById('confirm_email');
+            try {
+                const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
+                    body: {
+                        name: nameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        message: messageValue,
+                        honeypot: ""
+                    }
+                });
 
-                const nameValue = nameInput.value.trim();
-                const emailValue = emailInput.value.trim();
-                const messageValue = messageInput.value.trim();
+                if (error) throw error;
 
-                // Validation Status
-                const isNameEmpty = !nameValue;
-                const isEmailInvalid = !isValidEmail(emailValue);
-                const isMessageEmpty = !messageValue;
-                const isMessageShort = messageValue.length < 50;
-
-                // 1. Check if EVERYTHING is empty
-                if (isNameEmpty && isEmailInvalid && isMessageEmpty) {
-                    nameInput.classList.add('input-error');
-                    emailInput.classList.add('input-error');
-                    messageInput.classList.add('input-error');
-                    showToast("Please fill out all fields to continue.", "error");
-                    return;
-                }
-
-                // 2. Check Name
-                if (isNameEmpty) {
-                    nameInput.classList.add('input-error');
-                    showToast("Please enter your name.", "error");
-                    return;
-                }
-
-                // 3. Check Email
-                if (isEmailInvalid) {
-                    emailInput.classList.add('input-error');
-                    showToast("Please enter a valid email address.", "error");
-                    return;
-                }
-
-                // 4. Check Message Content
-                if (isMessageEmpty) {
-                    messageInput.classList.add('input-error');
-                    showToast("Please enter a message.", "error");
-                    return;
-                }
-
-                // 5. Check Message Length (Must be >= 50 chars)
-                if (isMessageShort) {
-                    messageInput.classList.add('input-error');
-                    showToast(`Your message is too short (${messageValue.length}/50 chars).`, "error");
-                    return;
-                }
-
-                // Proceed if no errors
-                submitBtn.textContent = 'Sending...';
-                submitBtn.disabled = true;
-
-                const formData = {
-                    name: nameValue,
-                    email: emailValue,
-                    message: messageValue,
-                    honeypot: honeypotInput.value
-                };
-
-                try {
-                    const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
-                        body: formData
-                    });
-
-                    if (error) throw error;
-
-                    showToast("Message sent successfully!", "success");
-                    contactForm.reset();
-                    submitBtn.textContent = 'Sent!';
-                } catch (error) {
-                    console.error('Error:', error);
-                    showToast("Failed to send message. Please try again.", "error");
+                showToast("Message sent successfully!", "success");
+                contactForm.reset();
+                submitBtn.textContent = 'Sent!';
+            } catch (error) {
+                console.error('Error:', error);
+                showToast("Failed to send message. Please try again.", "error");
+                submitBtn.textContent = originalBtnText;
+            } finally {
+                setTimeout(() => {
                     submitBtn.textContent = originalBtnText;
-                } finally {
-                    setTimeout(() => {
-                        submitBtn.textContent = originalBtnText;
-                        submitBtn.disabled = false;
-                    }, 3000);
-                }
-            });
+                    submitBtn.disabled = false;
+                }, 3000);
+            }
+        });
+    };
+
+    // --- 12. ROUTING (Hash Based) ---
+    const handleRouting = () => {
+        const hash = window.location.hash;
+        closeNav(); // Close nav on any route change
+
+        if (hash.startsWith('#project-')) {
+            const id = hash.replace('#project-', '');
+            renderProjectPage(id);
+            setActiveLink('#portfolio'); // Highlight portfolio in nav
+        } else if (hash === '#live') {
+            renderLiveProjectsPage();
+            setActiveLink('#live');
+        } else {
+            // Default: Home View
+            // If the hash is empty, or #home, #about, #contact...
+            renderHomePage(hash);
+
+            // Set Active Link Logic
+            if (hash === '#home' || hash === '') setActiveLink('#home');
+            else if (hash === '#about') setActiveLink('#about');
+            else if (hash === '#portfolio') setActiveLink('#portfolio');
+            else if (hash === '#contact') setActiveLink('#contact');
         }
     };
 
-    // --- 11. EVENT LISTENERS (ROUTING) ---
+    // --- 13. GLOBAL EVENT LISTENERS ---
+
+    // Listen for Back/Forward button clicks
+    window.addEventListener('hashchange', handleRouting);
+    // Handle initial load
+    window.addEventListener('load', handleRouting);
+
+    // Modal Image Logic
+    const closeModal = () => {
+        imageModal.classList.remove('visible');
+        setTimeout(() => { modalImage.src = ""; modalCaption.textContent = ""; }, 300);
+    };
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
+
+    // Global Click Delegation (for dynamic elements like Gallery Images & Tab Buttons)
     appRoot.addEventListener('click', (e) => {
-        const projectLink = e.target.closest('[data-project-id]');
-        if (projectLink) {
-            e.preventDefault();
-            renderProjectPage(projectLink.dataset.projectId);
-        }
-
-        const heroCTA = e.target.closest('#hero-cta-button');
-        if (heroCTA) {
-            e.preventDefault();
-            renderLiveProjectsPage();
-            closeNav();
-        }
-
-        const backToTop = e.target.closest('.back-to-top');
-        if (backToTop) {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
+        // Gallery Image Click
         const galleryImage = e.target.closest('.gallery-image');
         if (galleryImage) {
             modalImage.src = galleryImage.src;
@@ -463,13 +486,14 @@ document.addEventListener('DOMContentLoaded', () => {
             imageModal.classList.add('visible');
         }
 
+        // Tab Button Click
         const tabButton = e.target.closest('.tab-button');
         if (tabButton) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.iframe-container').forEach(container => {
                 container.classList.remove('active');
                 const iframe = container.querySelector('iframe');
-                if (iframe) iframe.src = "";
+                if (iframe) iframe.src = ""; // Unload to save memory
             });
             tabButton.classList.add('active');
             const targetContainer = document.getElementById(tabButton.dataset.target);
@@ -479,33 +503,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (targetIframe) targetIframe.src = targetIframe.dataset.src;
             }
         }
-    });
 
-    document.getElementById('nav-home').addEventListener('click', (e) => { e.preventDefault(); renderHomePage(); closeNav(); });
-    document.getElementById('nav-live').addEventListener('click', (e) => { e.preventDefault(); renderLiveProjectsPage(); closeNav(); });
-
-    const handleSectionScroll = (id) => {
-        if (!document.getElementById(id)) {
-            renderHomePage();
-            setTimeout(() => {
-                document.querySelector('#' + id)?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        } else {
-            document.querySelector('#' + id)?.scrollIntoView({ behavior: 'smooth' });
+        // Back to Top
+        const backToTop = e.target.closest('.back-to-top');
+        if (backToTop) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        closeNav();
-    };
-
-    document.getElementById('nav-about').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('about'); });
-    document.getElementById('nav-portfolio').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('portfolio'); });
-    document.getElementById('nav-contact').addEventListener('click', (e) => { e.preventDefault(); handleSectionScroll('contact'); });
-
-    const closeModal = () => {
-        imageModal.classList.remove('visible');
-        setTimeout(() => { modalImage.src = ""; modalCaption.textContent = ""; }, 300);
-    };
-    modalClose.addEventListener('click', closeModal);
-    imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
-
-    renderHomePage();
+    });
 });

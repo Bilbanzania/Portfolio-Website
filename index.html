@@ -10,7 +10,7 @@
         content="Portfolio of Mitchell Laypath - Full Stack Developer specializing in JavaScript, Unity, and interactive web experiences.">
     <meta property="og:title" content="Mitchell Laypath Portfolio">
     <meta property="og:description" content="Check out my latest web and game development projects.">
-    <meta property="og:image" content="media/Laypath-094.jpg">
+    <meta property="og:image" content="media/Laypath-094.webp">
     <meta property="og:type" content="website">
 
     <link rel="stylesheet" href="style.css">
@@ -24,7 +24,7 @@
 
 <body>
 
-    <button class="nav-toggler" aria-label="Open navigation menu">
+    <button class="nav-toggler" aria-label="Open navigation menu" aria-expanded="false">
         <span></span>
         <span></span>
         <span></span>
@@ -32,12 +32,12 @@
 
     <nav class="main-nav">
         <div class="nav-logo">
-            <img loading="lazy" src="media/Brand Logo_Laypath.png" alt="Mitchell Laypath Logo">
+            <img loading="lazy" src="media/Brand Logo_Laypath.webp" alt="Mitchell Laypath Logo">
         </div>
         <ul>
             <li><a href="#home" id="nav-home">Home</a></li>
             <li><a href="#about" id="nav-about">About</a></li>
-            <li><a href="#projects" id="nav-portfolio">Portfolio</a></li>
+            <li><a href="#portfolio" id="nav-portfolio">Portfolio</a></li>
             <li><a href="#live" id="nav-live">Live Projects</a></li>
             <li><a href="#contact" id="nav-contact">Contact</a></li>
         </ul>
@@ -50,7 +50,101 @@
         </div>
     </nav>
 
-    <main class="page-content" id="app-root"></main>
+    <main class="page-content" id="app-root">
+        <section class="hero-section" id="home">
+            <div class="hero-scrim"></div>
+            <div class="hero-content">
+                <h1 class="hero-title" tabindex="-1">Mitchell Laypath</h1>
+                <h2 class="hero-subtitle">Full-Stack Developer & IT Specialist</h2>
+                <div class="hero-buttons">
+                    <a href="#live" class="cta-button" id="hero-cta-button">View My Work</a>
+                    <a href="media/Current Resume_Laypath.pdf" class="cta-button secondary" download>Download Resume</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section reveal-on-scroll" id="about">
+            <div class="about-wrapper">
+                <div class="about-image">
+                    <img loading="lazy" src="media/Laypath-094.webp" alt="A headshot of Mitchell Laypath.">
+                </div>
+                <div class="about-text">
+                    <h2 class="section-title">About Me</h2>
+                    <p>I am a Full-Stack Developer with a strong foundation in object-oriented programming (Java, C#)
+                        and IT support. I graduated from <strong>Arizona State University</strong> with a B.S. in
+                        Full-Stack Web Development (3.88 GPA).</p>
+                    <p>Beyond code, I have professional experience as a <strong>Support Analyst</strong> for the Arizona
+                        Supreme Court, where I honed my troubleshooting and problem-solving skills.</p>
+
+                    <div class="skills-container">
+                        <h3>Tech Stack</h3>
+                        <ul class="skills-list">
+                            <li>JavaScript (ES6+)</li>
+                            <li>C# & Unity</li>
+                            <li>Node.js & Express</li>
+                            <li>Supabase & SQL</li>
+                            <li>HTML5 & CSS3</li>
+                            <li>Git & GitHub</li>
+                        </ul>
+                    </div>
+                    <div class="skills-container" style="margin-top: 1.5rem;">
+                        <h3>Education & Global Experience</h3>
+                        <ul class="skills-list" style="display: block;">
+                            <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🎓
+                                <strong>Arizona State University</strong> - B.S. Full-Stack Web Development</li>
+                            <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🌏
+                                <strong>Waseda University (Tokyo, Japan)</strong> - Study Abroad (Visualization &
+                                Simulation)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-section reveal-on-scroll" id="portfolio">
+            <h2 class="section-title">Portfolio</h2>
+            <div class="project-grid" id="static-project-grid">
+            </div>
+        </section>
+
+        <section class="contact-section reveal-on-scroll" id="contact">
+            <h2 class="section-title">Let's Connect</h2>
+            <p class="contact-intro">
+                Have a project in mind or just want to say hi?
+                Fill out the form below, and I'll get back to you.
+            </p>
+
+            <form class="contact-form" novalidate>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Jane Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="jane@example.com" required>
+                </div>
+
+                <div style="display: none; visibility: hidden; opacity: 0;">
+                    <label for="confirm_email">Don't fill this out</label>
+                    <input type="text" id="confirm_email" name="confirm_email" tabindex="-1" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="6"
+                        placeholder="Hi Mitchell! I'd love to discuss a project..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="cta-button">Send Message</button>
+                </div>
+            </form>
+        </section>
+
+        <footer class="main-footer">
+            <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
+            <p id="footer-copyright"></p>
+        </footer>
+    </main>
 
     <div class="image-modal" id="image-modal">
         <span class="modal-close" id="modal-close">&times;</span>

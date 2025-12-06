@@ -5,7 +5,7 @@ const projectsData = [
         title: "Exploring Web Development",
         synopsis: "This project is a strong example of a modern, small-business-style website, demonstrating core full-stack development skills.",
         tags: ["jQuery", "API", "Web Storage", "CSS"],
-        heroImage: "media/Exploring-WC-Home.png",
+        heroImage: "media/Exploring-WC-Home.webp",
         altText: "Screenshot of a web app showing a live weather report.",
         liveSiteLink: "https://bilbanzania.github.io/Personal-Project_4",
         objective: "The goal was to build a dynamic single-page application that could connect to a third-party API, display live weather data, and utilize jQuery widgets for smoother UI animations and navigation.",
@@ -14,9 +14,9 @@ const projectsData = [
         results: "The project was completed successfully within the academic timeframe. The final application is fully functional, responsive, and demonstrates a clean separation of concerns. The work in full can be seen in my GitHub repository.",
         githubLink: "https://github.com/Bilbanzania/Personal-Project_4",
         gallery: [
-            { img: "media/Exploring-WC-Wireframe.png", alt: "A simple wireframe for the website layout.", caption: "Wireframe for the website." },
-            { img: "media/Exploring-WC-About.png", alt: "The 'About' section of the web application.", caption: "The 'About' section of the website." },
-            { img: "media/Exploring-WC-Darkmode.png", alt: "The website shown in dark mode on a mobile view.", caption: "Example of the dark mode color change." }
+            { img: "media/Exploring-WC-Wireframe.webp", alt: "A simple wireframe for the website layout.", caption: "Wireframe for the website." },
+            { img: "media/Exploring-WC-About.webp", alt: "The 'About' section of the web application.", caption: "The 'About' section of the website." },
+            { img: "media/Exploring-WC-Darkmode.webp", alt: "The website shown in dark mode on a mobile view.", caption: "Example of the dark mode color change." }
         ]
     },
     {
@@ -24,7 +24,7 @@ const projectsData = [
         title: "Mother's Day Web Card",
         synopsis: "A personal project created to serve as a unique, interactive, and memorable Mother's Day gift.",
         tags: ["Vanilla JS", "CSS Animations", "DOM Manipulation"],
-        heroImage: "media/Mothers-Day-Responsiveness.png",
+        heroImage: "media/Mothers-Day-Responsiveness.webp",
         altText: "A chibi-style character art for a Mother's Day web card.",
         liveSiteLink: "https://bilbanzania.github.io/Mothers-Day-Web-Card",
         objective: "This was a personal project I created to serve as a unique, interactive, and memorable Mother's Day gift.",
@@ -33,9 +33,9 @@ const projectsData = [
         results: "The result was a highly personal and polished web application that my mom loved. It serves as a strong portfolio piece demonstrating creative front-end development and a deep understanding of vanilla JavaScript, CSS3 animations, and DOM manipulation. The full project is available on GitHub.",
         githubLink: "https://github.com/Bilbanzania/Mothers-Day-Web-Card",
         gallery: [
-            { img: "media/Mothers-Day-Intro.png", alt: "The start screen showing 'Tap to Begin'.", caption: "This is how the web card begins." },
-            { img: "media/Mothers-Day-Example.png", alt: "The main card with chibi art and animations.", caption: "Then it plays music with animations." },
-            { img: "media/Mothers-Day-Character.png", alt: "The original chibi character file.", caption: "Original character file." }
+            { img: "media/Mothers-Day-Intro.webp", alt: "The start screen showing 'Tap to Begin'.", caption: "This is how the web card begins." },
+            { img: "media/Mothers-Day-Example.webp", alt: "The main card with chibi art and animations.", caption: "Then it plays music with animations." },
+            { img: "media/Mothers-Day-Character.webp", alt: "The original chibi character file.", caption: "Original character file." }
         ]
     },
     {
@@ -43,7 +43,7 @@ const projectsData = [
         title: "Student GPA Simulation",
         synopsis: "A 3D agent-based simulation in Unity to test an academic hypothesis.",
         tags: ["Unity", "C#", "3D Modeling", "AI Agents"],
-        heroImage: "media/Student-GPA-Running.png",
+        heroImage: "media/Student-GPA-Running.webp",
         altText: "A 3D Unity simulation showing agent-based models.",
         liveSiteLink: "https://bilbanzania.github.io/Study-Abroad-Unity-Project_WebGL",
         objective: "The objective was to design and build a 3D agent-based simulation in Unity to test a hypothesis: would adding more study rooms on a college campus correlate with an increase in the average student GPA?",
@@ -52,9 +52,9 @@ const projectsData = [
         results: "The simulation successfully ran, and the collected data showed a slight but consistent increase in the average GPA when more study rooms were available, suggesting a positive correlation. As a final project for a study abroad course, it was a challenging build completed within a tight two-week timeframe. The project, including the WebGL build, is available on GitHub.",
         githubLink: "https://github.com/Bilbanzania/Study-Abroad-Unity-Project_WebGL",
         gallery: [
-            { img: "media/Student-GPA-Intro.png", alt: "The starting screen for the simulation.", caption: "The starting screen for the simulation." },
-            { img: "media/Student-GPA-Code Snippet.png", alt: "A snippet of the C# code for the AI agents.", caption: "Snippet from the AI Agents code." },
-            { img: "media/Student-GPA-Running.png", alt: "The simulation running with agents moving.", caption: "The simulation running with agents moving." }
+            { img: "media/Student-GPA-Intro.webp", alt: "The starting screen for the simulation.", caption: "The starting screen for the simulation." },
+            { img: "media/Student-GPA-Code Snippet.webp", alt: "A snippet of the C# code for the AI agents.", caption: "Snippet from the AI Agents code." },
+            { img: "media/Student-GPA-Running.webp", alt: "The simulation running with agents moving.", caption: "The simulation running with agents moving." }
         ]
     }
 ];
