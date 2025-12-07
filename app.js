@@ -1,6 +1,5 @@
 // --- 1. CONFIGURATION ---
 const SUPABASE_PROJECT_URL = 'https://fidzotxqwlhzgztnskbu.supabase.co';
-// NOTE: Ensure RLS policies are set in Supabase to protect this table!
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZHpvdHhxd2xoemd6dG5za2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1ODk4MzMsImV4cCI6MjA2MjE2NTgzM30.aH0Hy1cGz-9pZRRsyS5_DId9IKCgalNo6d56aNwQisc';
 const FUNCTION_NAME = 'portfolio';
 
@@ -20,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentYear = new Date().getFullYear();
     const copyrightEl = document.getElementById('nav-copyright');
     if (copyrightEl) copyrightEl.innerHTML = `© ${currentYear} Mitchell Laypath`;
-    const footerCopyright = document.getElementById('footer-copyright');
-    if (footerCopyright) footerCopyright.innerHTML = `© ${currentYear} Mitchell Laypath. All rights reserved.`;
 
     // --- 3. TOAST NOTIFICATION HELPER ---
     const showToast = (message, type = 'success') => {
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. NAVIGATION LOGIC ---
     navToggler.addEventListener('click', () => {
         body.classList.toggle('nav-open');
-        // Update ARIA attribute for accessibility
         const isOpen = body.classList.contains('nav-open');
         navToggler.setAttribute('aria-expanded', isOpen);
     });
@@ -52,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const setActiveLink = (hash) => {
         document.querySelectorAll('.main-nav ul li a').forEach(link => {
             link.classList.remove('active-link');
-            // Check if link href matches current hash (or simplified check for sections)
             if (link.getAttribute('href') === hash) {
                 link.classList.add('active-link');
             }
@@ -114,6 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 7. RENDER HELPER: Generate Project Grid HTML ---
     const generateProjectGridHTML = () => {
+        // Safe check in case projectsData isn't loaded
+        if (typeof projectsData === 'undefined') return '<p>Loading projects...</p>';
+
         return projectsData.map(project => `
             <article class="project-card reveal-on-scroll">
                 <div class="card-image">
@@ -131,11 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     };
 
-    // --- 8. RENDER FUNCTION: HOME PAGE ---
-    // Note: Much of this HTML is now hardcoded in index.html for SEO.
-    // This function re-renders it if the user navigates back from a sub-page.
+    // --- 8. RENDER FUNCTION: HOME PAGE (Refactored with Template) ---
     const renderHomePage = (scrollToId = null) => {
-        // If we are already on the home view (check for a home-specific element), just scroll
+        // OPTIMIZATION: If we are already on the home view, just scroll.
         if (document.getElementById('home')) {
             if (scrollToId) {
                 setTimeout(() => {
@@ -144,109 +140,32 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 window.scrollTo(0, 0);
             }
-            // Ensure listeners are attached if grid was empty (e.g. initial load vs re-render)
-            const grid = document.getElementById('static-project-grid');
-            if (grid && grid.innerHTML.trim() === '') {
-                grid.innerHTML = generateProjectGridHTML();
-                observeElements();
-                attachContactFormListener();
-            }
             return;
         }
 
-        // Full Re-render of Home
-        const projectCardsHTML = generateProjectGridHTML();
+        // FULL RENDER: Fetch content from the <template> tag
+        const template = document.getElementById('home-template');
 
-        appRoot.innerHTML = `
-            <section class="hero-section" id="home">
-                <div class="hero-scrim"></div>
-                <div class="hero-content">
-                    <h1 class="hero-title" tabindex="-1">Mitchell Laypath</h1>
-                    <h2 class="hero-subtitle">Full-Stack Developer & IT Specialist</h2>
-                    <div class="hero-buttons">
-                        <a href="#live" class="cta-button" id="hero-cta-button">View My Work</a>
-                        <a href="media/Current Resume_Laypath.pdf" class="cta-button secondary" download>Download Resume</a>
-                    </div>
-                </div>
-            </section>
+        // Clone the template content (true = clone all children)
+        const content = template.content.cloneNode(true);
 
-            <section class="about-section reveal-on-scroll" id="about">
-                <div class="about-wrapper">
-                    <div class="about-image">
-                        <img loading="lazy" src="media/Laypath-094.webp" alt="A headshot of Mitchell Laypath.">
-                    </div>
-                    <div class="about-text">
-                        <h2 class="section-title">About Me</h2>
-                        <p>I am a Full-Stack Developer with a strong foundation in object-oriented programming (Java, C#) and IT support. I graduated from <strong>Arizona State University</strong> with a B.S. in Full-Stack Web Development (3.88 GPA).</p>
-                        <p>Beyond code, I have professional experience as a <strong>Support Analyst</strong> for the Arizona Supreme Court, where I honed my troubleshooting and problem-solving skills.</p>
-                        
-                        <div class="skills-container">
-                            <h3>Tech Stack</h3>
-                            <ul class="skills-list">
-                                <li>JavaScript (ES6+)</li>
-                                <li>C# & Unity</li>
-                                <li>Node.js & Express</li>
-                                <li>Supabase & SQL</li>
-                                <li>HTML5 & CSS3</li>
-                                <li>Git & GitHub</li>
-                            </ul>
-                        </div>
-                         <div class="skills-container" style="margin-top: 1.5rem;">
-                            <h3>Education & Global Experience</h3>
-                            <ul class="skills-list" style="display: block;">
-                                <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🎓 <strong>Arizona State University</strong> - B.S. Full-Stack Web Development</li>
-                                <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🌏 <strong>Waseda University (Tokyo, Japan)</strong> - Study Abroad (Visualization & Simulation)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        // Inject Dynamic Content into the clone (Project Grid)
+        const gridContainer = content.getElementById('static-project-grid');
+        if (gridContainer) {
+            gridContainer.innerHTML = generateProjectGridHTML();
+        }
 
-            <section class="project-section reveal-on-scroll" id="portfolio">
-                <h2 class="section-title">Portfolio</h2>
-                <div class="project-grid" id="static-project-grid">
-                    ${projectCardsHTML}
-                </div>
-            </section>
+        // Inject Dynamic Content (Footer Year)
+        const footerCopyright = content.getElementById('footer-copyright');
+        if (footerCopyright) {
+            footerCopyright.innerHTML = `© ${currentYear} Mitchell Laypath. All rights reserved.`;
+        }
 
-            <section class="contact-section reveal-on-scroll" id="contact">
-                <h2 class="section-title">Let's Connect</h2>
-                <p class="contact-intro">
-                    Have a project in mind or just want to say hi?
-                    Fill out the form below, and I'll get back to you.
-                </p>
-                
-                <form class="contact-form" novalidate>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" placeholder="Jane Doe" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="jane@example.com" required>
-                    </div>
+        // Clear the App Root and append the new View
+        appRoot.innerHTML = '';
+        appRoot.appendChild(content);
 
-                    <div style="display: none; visibility: hidden; opacity: 0;">
-                         <label for="confirm_email">Don't fill this out</label>
-                         <input type="text" id="confirm_email" name="confirm_email" tabindex="-1" autocomplete="off">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="6" placeholder="Hi Mitchell! I'd love to discuss a project..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="cta-button">Send Message</button>
-                    </div>
-                </form>
-            </section>
-
-            <footer class="main-footer">
-                <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
-                <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
-            </footer>
-        `;
-
+        // Handle Scroll Logic after render
         if (scrollToId) {
             setTimeout(() => {
                 document.querySelector(scrollToId)?.scrollIntoView({ behavior: 'smooth' });
@@ -254,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             window.scrollTo(0, 0);
         }
+
+        // Re-attach observers and listeners since DOM elements are new
         observeElements();
         attachContactFormListener();
     };
@@ -363,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         observeElements();
     };
 
-    // --- 11. CONTACT FORM HANDLER (Optimized) ---
+    // --- 11. CONTACT FORM HANDLER ---
     const attachContactFormListener = () => {
         const contactForm = document.querySelector('.contact-form');
         if (!contactForm) return;
@@ -386,9 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Honeypot Check (Instant Reject)
             if (honeypotInput.value) return;
 
-            // 2. Browser Native Validation check (checks 'required' and type='email')
+            // 2. Browser Native Validation check
             if (!contactForm.checkValidity()) {
-                // Highlight invalid fields
                 inputs.forEach(input => {
                     if (!input.validity.valid) input.classList.add('input-error');
                 });
@@ -404,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Proceed if valid
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
 
@@ -444,13 +363,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hash.startsWith('#project-')) {
             const id = hash.replace('#project-', '');
             renderProjectPage(id);
-            setActiveLink('#portfolio'); // Highlight portfolio in nav
+            setActiveLink('#portfolio');
         } else if (hash === '#live') {
             renderLiveProjectsPage();
             setActiveLink('#live');
         } else {
             // Default: Home View
-            // If the hash is empty, or #home, #about, #contact...
             renderHomePage(hash);
 
             // Set Active Link Logic
@@ -476,9 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalClose) modalClose.addEventListener('click', closeModal);
     imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
 
-    // Global Click Delegation (for dynamic elements like Gallery Images & Tab Buttons)
+    // Global Click Delegation
     appRoot.addEventListener('click', (e) => {
-        // Gallery Image Click
         const galleryImage = e.target.closest('.gallery-image');
         if (galleryImage) {
             modalImage.src = galleryImage.src;
@@ -486,14 +403,13 @@ document.addEventListener('DOMContentLoaded', () => {
             imageModal.classList.add('visible');
         }
 
-        // Tab Button Click
         const tabButton = e.target.closest('.tab-button');
         if (tabButton) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.iframe-container').forEach(container => {
                 container.classList.remove('active');
                 const iframe = container.querySelector('iframe');
-                if (iframe) iframe.src = ""; // Unload to save memory
+                if (iframe) iframe.src = "";
             });
             tabButton.classList.add('active');
             const targetContainer = document.getElementById(tabButton.dataset.target);
@@ -504,7 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Back to Top
         const backToTop = e.target.closest('.back-to-top');
         if (backToTop) {
             e.preventDefault();

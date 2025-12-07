@@ -50,7 +50,17 @@
         </div>
     </nav>
 
-    <main class="page-content" id="app-root">
+    <main class="page-content" id="app-root"></main>
+
+    <div class="image-modal" id="image-modal">
+        <span class="modal-close" id="modal-close">&times;</span>
+        <div class="modal-content">
+            <img src="" alt="Enlarged project image" class="modal-image" id="modal-image">
+            <p class="modal-caption" id="modal-caption"></p>
+        </div>
+    </div>
+
+    <template id="home-template">
         <section class="hero-section" id="home">
             <div class="hero-scrim"></div>
             <div class="hero-content">
@@ -91,10 +101,12 @@
                         <h3>Education & Global Experience</h3>
                         <ul class="skills-list" style="display: block;">
                             <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🎓
-                                <strong>Arizona State University</strong> - B.S. Full-Stack Web Development</li>
+                                <strong>Arizona State University</strong> - B.S. Full-Stack Web Development
+                            </li>
                             <li style="margin-bottom: 5px; background: none; border: none; padding: 0;">🌏
                                 <strong>Waseda University (Tokyo, Japan)</strong> - Study Abroad (Visualization &
-                                Simulation)</li>
+                                Simulation)
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -103,8 +115,7 @@
 
         <section class="project-section reveal-on-scroll" id="portfolio">
             <h2 class="section-title">Portfolio</h2>
-            <div class="project-grid" id="static-project-grid">
-            </div>
+            <div class="project-grid" id="static-project-grid"></div>
         </section>
 
         <section class="contact-section reveal-on-scroll" id="contact">
@@ -144,15 +155,7 @@
             <a href="#" class="back-to-top" aria-label="Back to top">&#9650;</a>
             <p id="footer-copyright"></p>
         </footer>
-    </main>
-
-    <div class="image-modal" id="image-modal">
-        <span class="modal-close" id="modal-close">&times;</span>
-        <div class="modal-content">
-            <img src="" alt="Enlarged project image" class="modal-image" id="modal-image">
-            <p class="modal-caption" id="modal-caption"></p>
-        </div>
-    </div>
+    </template>
 
     <script src="data.js"></script>
     <script src="app.js"></script>
