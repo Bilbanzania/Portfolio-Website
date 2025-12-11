@@ -18,8 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalClose = document.getElementById('modal-close');
 
     const currentYear = new Date().getFullYear();
-    const copyrightEl = document.getElementById('nav-copyright');
-    if (copyrightEl) copyrightEl.innerHTML = `© ${currentYear} Mitchell Laypath`;
 
     /* --- 3. Helper Functions (Toasts) --- */
     const showToast = (message, type = 'success') => {
@@ -34,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     };
 
-    /* --- 4. Data Fetching (Supabase) --- */
+    /* --- 4. Data Fetching (Projects) --- */
     const fetchProjects = async () => {
         try {
             const { data, error } = await supabase
@@ -65,13 +63,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) {
             console.error('Error fetching projects:', err);
             appRoot.innerHTML = `<div style="text-align:center; padding: 2rem;">
-                <h3>Error loading projects</h3>
+                <h3>Error loading content</h3>
                 <p>Please check your connection or try again later.</p>
             </div>`;
         }
     };
 
-    /* --- 5. Navigation Logic --- */
+    /* --- 5. View Counter Logic (RPC with Animation) --- */
+    const updateViewCount = async () => {
+        const counterEl = document.getElementById('view-counter');
+        if (!counterEl) return;
+
+        try {
+            const { data, error } = await supabase.rpc('increment_views');
+
+            if (error) throw error;
+
+            const target = data;
+            const duration = 1500;
+            const start = 0;
+            const increment = target / (duration / 16);
+
+            let current = 0;
+            const animateCount = () => {
+                current += increment;
+                if (current < target) {
+                    counterEl.innerText = Math.ceil(current).toLocaleString();
+                    requestAnimationFrame(animateCount);
+                } else {
+                    counterEl.innerText = target.toLocaleString();
+                }
+            };
+
+            animateCount();
+
+        } catch (err) {
+            console.error('Error updating views:', err);
+            counterEl.innerText = "--";
+        }
+    };
+
+    /* --- 6. Navigation Logic --- */
     navToggler.addEventListener('click', () => {
         body.classList.toggle('nav-open');
         const isOpen = body.classList.contains('nav-open');
@@ -92,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    /* --- 6. Theme Logic --- */
+    /* --- 7. Theme Logic --- */
     const themeToggleButton = document.getElementById('theme-toggle');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     let currentTheme = localStorage.getItem('theme');
@@ -121,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    /* --- 7. Scroll Animations --- */
+    /* --- 8. Scroll Animations --- */
     let isScrolling = false;
     window.addEventListener('scroll', () => {
         if (!isScrolling) {
@@ -152,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    /* --- 8. Render Helper: Project Grid --- */
+    /* --- 9. Render Helper: Project Grid --- */
     const generateProjectGridHTML = () => {
         if (!projectsData || projectsData.length === 0) return '<p>Loading projects...</p>';
 
@@ -173,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         `).join('');
     };
 
-    /* --- 9. Render Function: Home Page --- */
+    /* --- 10. Render Function: Home Page --- */
     const renderHomePage = (scrollToId = null) => {
         if (document.getElementById('home')) {
             if (scrollToId) {
@@ -214,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         attachContactFormListener();
     };
 
-    /* --- 10. Render Function: Project Detail --- */
+    /* --- 11. Render Function: Project Detail --- */
     const renderProjectPage = (projectId) => {
         const project = projectsData.find(p => p.id === projectId);
         if (!project) { renderHomePage(); return; }
@@ -285,7 +317,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    /* --- 11. Render Function: Live Projects --- */
+    /* --- 12. Render Function: Live Projects --- */
     const renderLiveProjectsPage = () => {
         const tabButtonsHTML = projectsData.map((project, index) => `
             <button class="tab-button ${index === 0 ? 'active' : ''}" data-target="iframe-${project.id}">
@@ -322,7 +354,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         observeElements();
     };
 
-    /* --- 12. Contact Form Handler --- */
+    /* --- 13. Contact Form Handler --- */
     const attachContactFormListener = () => {
         const contactForm = document.querySelector('.contact-form');
         if (!contactForm) return;
@@ -390,7 +422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    /* --- 13. Routing Logic --- */
+    /* --- 14. Routing Logic --- */
     const handleRouting = () => {
         const hash = window.location.hash;
         closeNav();
@@ -411,9 +443,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    /* --- 14. Global Event Listeners --- */
+    /* --- 15. Global Event Listeners --- */
     window.addEventListener('hashchange', handleRouting);
-    // load event listener removed as fetchProjects calls handleRouting
 
     const closeModal = () => {
         imageModal.classList.remove('visible');
@@ -469,6 +500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    /* --- 15. Initialize --- */
+    /* --- 16. Initialize --- */
     fetchProjects();
+    updateViewCount();
 });
