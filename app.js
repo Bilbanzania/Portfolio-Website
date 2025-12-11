@@ -84,11 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 6. SCROLL ANIMATIONS ---
+    let isScrolling = false;
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            body.classList.add('scrolled');
-        } else {
-            body.classList.remove('scrolled');
+        if (!isScrolling) {
+            window.requestAnimationFrame(() => {
+                if (window.scrollY > 300) {
+                    body.classList.add('scrolled');
+                } else {
+                    body.classList.remove('scrolled');
+                }
+                isScrolling = false;
+            });
+            isScrolling = true;
         }
     });
 
@@ -109,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 7. RENDER HELPER: Generate Project Grid HTML ---
     const generateProjectGridHTML = () => {
-        // Safe check in case projectsData isn't loaded
         if (typeof projectsData === 'undefined') return '<p>Loading projects...</p>';
 
         return projectsData.map(project => `
@@ -129,9 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     };
 
-    // --- 8. RENDER FUNCTION: HOME PAGE (Refactored with Template) ---
+    // --- 8. RENDER FUNCTION: HOME PAGE ---
     const renderHomePage = (scrollToId = null) => {
-        // OPTIMIZATION: If we are already on the home view, just scroll.
         if (document.getElementById('home')) {
             if (scrollToId) {
                 setTimeout(() => {
@@ -143,29 +148,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // FULL RENDER: Fetch content from the <template> tag
         const template = document.getElementById('home-template');
-
-        // Clone the template content (true = clone all children)
         const content = template.content.cloneNode(true);
 
-        // Inject Dynamic Content into the clone (Project Grid)
         const gridContainer = content.getElementById('static-project-grid');
         if (gridContainer) {
             gridContainer.innerHTML = generateProjectGridHTML();
         }
 
-        // Inject Dynamic Content (Footer Year)
         const footerCopyright = content.getElementById('footer-copyright');
         if (footerCopyright) {
             footerCopyright.innerHTML = `© ${currentYear} Mitchell Laypath. All rights reserved.`;
         }
 
-        // Clear the App Root and append the new View
         appRoot.innerHTML = '';
         appRoot.appendChild(content);
 
-        // Handle Scroll Logic after render
         if (scrollToId) {
             setTimeout(() => {
                 document.querySelector(scrollToId)?.scrollIntoView({ behavior: 'smooth' });
@@ -174,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo(0, 0);
         }
 
-        // Re-attach observers and listeners since DOM elements are new
         observeElements();
         attachContactFormListener();
     };
@@ -225,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             
             <footer class="main-footer">
-                <a href="#home" class="cta-button secondary" style="margin-bottom: 1rem;">&larr; Back to Portfolio</a>
+                <a href="#portfolio" class="cta-button secondary" style="margin-bottom: 1rem;">&larr; Back to Portfolio</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
@@ -233,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.project-title').focus();
         observeElements();
 
-        // Slideshow Logic
         let slideIndex = 1;
         const slides = document.querySelectorAll('.slide');
         const showSlides = (n) => {
@@ -261,10 +257,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const iframesHTML = projectsData.map((project, index) => `
             <div class="iframe-container ${index === 0 ? 'active' : ''}" id="iframe-${project.id}">
-                 <div class="iframe-fallback">
-                    Trouble viewing? <a href="${project.liveSiteLink}" target="_blank" rel="noopener noreferrer">Open site in a new tab ↗</a>
+                 <div class="iframe-placeholder" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; background:var(--bg-panel); color:var(--text-body);">
+                    <p style="margin-bottom:1rem; padding: 0 1rem;">Click below to load the live preview for <br><strong>${project.title}</strong></p>
+                    <button class="cta-button load-iframe-btn" data-src="${project.liveSiteLink}">Load Preview</button>
+                    <div class="iframe-fallback" style="margin-top:1rem; background:transparent;">
+                        Or <a href="${project.liveSiteLink}" target="_blank" rel="noopener noreferrer">open in new tab ↗</a>
+                    </div>
                 </div>
-                <iframe src="${index === 0 ? project.liveSiteLink : ''}" data-src="${project.liveSiteLink}" title="${project.title}"></iframe>
+                <iframe data-src="${project.liveSiteLink}" title="${project.title}" style="display:none;"></iframe>
             </div>
         `).join('');
 
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="iframe-wrapper">${iframesHTML}</div>
             </section>
             <footer class="main-footer">
-                <a href="#home" class="cta-button secondary" style="margin-bottom: 1rem;">&larr; Back to Portfolio</a>
+                <a href="#home" class="cta-button secondary" style="margin-bottom: 1rem;">&larr; Back to Home</a>
                 <p>© ${currentYear} Mitchell Laypath. All rights reserved.</p>
             </footer>
         `;
@@ -304,10 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitBtn = contactForm.querySelector('button');
             const originalBtnText = submitBtn.textContent;
 
-            // 1. Honeypot Check (Instant Reject)
             if (honeypotInput.value) return;
 
-            // 2. Browser Native Validation check
             if (!contactForm.checkValidity()) {
                 inputs.forEach(input => {
                     if (!input.validity.valid) input.classList.add('input-error');
@@ -316,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 3. Custom Logic (Message Length)
             const messageValue = messageInput.value.trim();
             if (messageValue.length < 50) {
                 messageInput.classList.add('input-error');
@@ -355,10 +352,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 12. ROUTING (Hash Based) ---
+    // --- 12. ROUTING ---
     const handleRouting = () => {
         const hash = window.location.hash;
-        closeNav(); // Close nav on any route change
+        closeNav();
 
         if (hash.startsWith('#project-')) {
             const id = hash.replace('#project-', '');
@@ -368,10 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderLiveProjectsPage();
             setActiveLink('#live');
         } else {
-            // Default: Home View
             renderHomePage(hash);
-
-            // Set Active Link Logic
             if (hash === '#home' || hash === '') setActiveLink('#home');
             else if (hash === '#about') setActiveLink('#about');
             else if (hash === '#portfolio') setActiveLink('#portfolio');
@@ -380,13 +374,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 13. GLOBAL EVENT LISTENERS ---
-
-    // Listen for Back/Forward button clicks
     window.addEventListener('hashchange', handleRouting);
-    // Handle initial load
     window.addEventListener('load', handleRouting);
 
-    // Modal Image Logic
     const closeModal = () => {
         imageModal.classList.remove('visible');
         setTimeout(() => { modalImage.src = ""; modalCaption.textContent = ""; }, 300);
@@ -394,8 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalClose) modalClose.addEventListener('click', closeModal);
     imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
 
-    // Global Click Delegation
     appRoot.addEventListener('click', (e) => {
+        // Gallery Image Click
         const galleryImage = e.target.closest('.gallery-image');
         if (galleryImage) {
             modalImage.src = galleryImage.src;
@@ -403,23 +393,41 @@ document.addEventListener('DOMContentLoaded', () => {
             imageModal.classList.add('visible');
         }
 
+        // Project Tab Click
         const tabButton = e.target.closest('.tab-button');
         if (tabButton) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.iframe-container').forEach(container => {
                 container.classList.remove('active');
-                const iframe = container.querySelector('iframe');
-                if (iframe) iframe.src = "";
             });
             tabButton.classList.add('active');
             const targetContainer = document.getElementById(tabButton.dataset.target);
             if (targetContainer) {
                 targetContainer.classList.add('active');
-                const targetIframe = targetContainer.querySelector('iframe');
-                if (targetIframe) targetIframe.src = targetIframe.dataset.src;
             }
         }
 
+        // Load Preview Button Click
+        const loadBtn = e.target.closest('.load-iframe-btn');
+        if (loadBtn) {
+            const container = loadBtn.closest('.iframe-container');
+            const iframe = container.querySelector('iframe');
+            const placeholder = container.querySelector('.iframe-placeholder');
+
+            iframe.src = loadBtn.dataset.src;
+            iframe.onload = () => {
+                iframe.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            setTimeout(() => {
+                iframe.style.display = 'block';
+                placeholder.style.display = 'none';
+            }, 1000);
+
+            loadBtn.textContent = 'Loading...';
+        }
+
+        // Back To Top
         const backToTop = e.target.closest('.back-to-top');
         if (backToTop) {
             e.preventDefault();

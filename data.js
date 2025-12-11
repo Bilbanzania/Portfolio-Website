@@ -56,5 +56,43 @@ const projectsData = [
             { img: "media/Student-GPA-Code Snippet.webp", alt: "A snippet of the C# code for the AI agents.", caption: "Snippet from the AI Agents code." },
             { img: "media/Student-GPA-Running.webp", alt: "The simulation running with agents moving.", caption: "The simulation running with agents moving." }
         ]
+    },
+    {
+        id: "fathers-day",
+        title: "Father's Day Web Card",
+        synopsis: "A creative sequel to my Mother's Day project, this digital card uses sequential animations to tell a short story.",
+        tags: ["Vanilla JS", "Keyframe Animations", "Timing Events"],
+        heroImage: "media/Fathers-Day-Intro.webp",
+        altText: "The intro screen for the Father's Day card.",
+        liveSiteLink: "https://bilbanzania.github.io/Fathers-Day-Web-Card/",
+        objective: "The goal was to iterate on the concept of a digital gift by focusing on narrative pacing—using code to make a story unfold scene-by-scene.",
+        synopsisDetail: "Inspired by the positive reaction to my Mother's Day card, I wanted to create a companion piece for Father's Day. However, instead of just a static interaction, I wanted to challenge myself to create a 'movie-like' experience where quotes and characters appear in a specific rhythm.",
+        process: "I started by storyboarding the sequence of events. The technical challenge was managing the timing; I used vanilla JavaScript to handle the state changes and CSS keyframes for the visual flair. I had to carefully synchronize the text reveals with the character animations to ensure the message hit at the right emotional beats.",
+        results: "The project was a success and served as a great practice ground for managing complex animation states without a library. It resulted in a memorable, heartwarming gift that works smoothly on both mobile and desktop.",
+        githubLink: "https://github.com/Bilbanzania/Fathers-Day-Web-Card",
+        gallery: [
+            { img: "media/Fathers-Day-Intro.webp", alt: "The mysterious opening screen.", caption: "The opening scene sets the mood." },
+            { img: "media/Fathers-Day-Main.webp", alt: "The character reveal animation.", caption: "The main character animation reveal." },
+            { img: "media/Fathers-Day-Quote-Animation.webp", alt: "Floating quotes animation.", caption: "Dynamic text sequences driving the story." }
+        ]
+    },
+    {
+        id: "dream-stations",
+        title: "Dream Stations (Project 2)",
+        synopsis: "A responsive, music-themed website that explores modern UI patterns like dark mode toggling and client-side form validation.",
+        tags: ["Responsive Design", "Local Storage", "Form Validation"],
+        heroImage: "media/Project2-Home.webp",
+        altText: "Homepage of the Dream Stations music app.",
+        liveSiteLink: "https://bilbanzania.github.io/Personal-Project_2/",
+        objective: "The objective was to build a polished, multi-page website from scratch that incorporates user preferences and data capture techniques.",
+        synopsisDetail: "I built 'Dream Stations' as a curated playlist showcase to test my front-end skills. I wanted to move beyond basic static pages and implement features that users expect from modern apps, such as a persistent Dark Mode and interactive forms.",
+        process: "I began with the UI design, focusing on a card-based grid layout that adapts to any screen size. A key part of the process was writing the JavaScript logic to save the user's theme preference to Local Storage, ensuring their choice is remembered on return visits. I also implemented custom validation logic for the signup forms to provide immediate visual feedback.",
+        results: "This project sharpened my understanding of the DOM and browser storage. The final result is a clean, responsive application that demonstrates a strong grasp of fundamental web user experience principles.",
+        githubLink: "https://github.com/Bilbanzania/Personal-Project_2",
+        gallery: [
+            { img: "media/Project2-Home.webp", alt: "Dream Stations Homepage.", caption: "The main dashboard featuring playlist cards." },
+            { img: "media/Project2-Light-mode.webp", alt: "Light Mode View.", caption: "Theme toggling in action (Light Mode)." },
+            { img: "media/Project2-Forms.webp", alt: "Sign Up Forms.", caption: "Custom form layouts with validation." }
+        ]
     }
 ];
