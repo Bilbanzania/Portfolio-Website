@@ -1,13 +1,14 @@
-// --- 1. CONFIGURATION ---
+/* --- 1. Configuration & Global Variables --- */
 const SUPABASE_PROJECT_URL = 'https://fidzotxqwlhzgztnskbu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZHpvdHhxd2xoemd6dG5za2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1ODk4MzMsImV4cCI6MjA2MjE2NTgzM30.aH0Hy1cGz-9pZRRsyS5_DId9IKCgalNo6d56aNwQisc';
 const FUNCTION_NAME = 'portfolio';
 
 const supabase = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
+let projectsData = [];
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
-    // --- 2. CORE ELEMENTS ---
+    /* --- 2. Core Elements --- */
     const body = document.body;
     const navToggler = document.querySelector('.nav-toggler');
     const appRoot = document.getElementById('app-root');
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyrightEl = document.getElementById('nav-copyright');
     if (copyrightEl) copyrightEl.innerHTML = `© ${currentYear} Mitchell Laypath`;
 
-    // --- 3. TOAST NOTIFICATION HELPER ---
+    /* --- 3. Helper Functions (Toasts) --- */
     const showToast = (message, type = 'success') => {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
@@ -33,7 +34,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
-    // --- 4. NAVIGATION LOGIC ---
+    /* --- 4. Data Fetching (Supabase) --- */
+    const fetchProjects = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .order('display_order', { ascending: true });
+
+            if (error) throw error;
+
+            projectsData = data.map(p => ({
+                id: p.id,
+                title: p.title,
+                synopsis: p.synopsis,
+                tags: p.tags,
+                heroImage: p.hero_image,
+                altText: p.alt_text,
+                liveSiteLink: p.live_site_link,
+                objective: p.objective,
+                synopsisDetail: p.synopsis_detail,
+                process: p.process,
+                results: p.results,
+                githubLink: p.github_link,
+                gallery: p.gallery
+            }));
+
+            handleRouting();
+
+        } catch (err) {
+            console.error('Error fetching projects:', err);
+            appRoot.innerHTML = `<div style="text-align:center; padding: 2rem;">
+                <h3>Error loading projects</h3>
+                <p>Please check your connection or try again later.</p>
+            </div>`;
+        }
+    };
+
+    /* --- 5. Navigation Logic --- */
     navToggler.addEventListener('click', () => {
         body.classList.toggle('nav-open');
         const isOpen = body.classList.contains('nav-open');
@@ -54,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 5. THEME LOGIC ---
+    /* --- 6. Theme Logic --- */
     const themeToggleButton = document.getElementById('theme-toggle');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     let currentTheme = localStorage.getItem('theme');
@@ -83,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 6. SCROLL ANIMATIONS ---
+    /* --- 7. Scroll Animations --- */
     let isScrolling = false;
     window.addEventListener('scroll', () => {
         if (!isScrolling) {
@@ -114,9 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 7. RENDER HELPER: Generate Project Grid HTML ---
+    /* --- 8. Render Helper: Project Grid --- */
     const generateProjectGridHTML = () => {
-        if (typeof projectsData === 'undefined') return '<p>Loading projects...</p>';
+        if (!projectsData || projectsData.length === 0) return '<p>Loading projects...</p>';
 
         return projectsData.map(project => `
             <article class="project-card reveal-on-scroll">
@@ -135,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     };
 
-    // --- 8. RENDER FUNCTION: HOME PAGE ---
+    /* --- 9. Render Function: Home Page --- */
     const renderHomePage = (scrollToId = null) => {
         if (document.getElementById('home')) {
             if (scrollToId) {
@@ -176,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attachContactFormListener();
     };
 
-    // --- 9. RENDER FUNCTION: PROJECT DETAIL ---
+    /* --- 10. Render Function: Project Detail --- */
     const renderProjectPage = (projectId) => {
         const project = projectsData.find(p => p.id === projectId);
         if (!project) { renderHomePage(); return; }
@@ -247,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 10. RENDER FUNCTION: LIVE PROJECTS ---
+    /* --- 11. Render Function: Live Projects --- */
     const renderLiveProjectsPage = () => {
         const tabButtonsHTML = projectsData.map((project, index) => `
             <button class="tab-button ${index === 0 ? 'active' : ''}" data-target="iframe-${project.id}">
@@ -284,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         observeElements();
     };
 
-    // --- 11. CONTACT FORM HANDLER ---
+    /* --- 12. Contact Form Handler --- */
     const attachContactFormListener = () => {
         const contactForm = document.querySelector('.contact-form');
         if (!contactForm) return;
@@ -352,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 12. ROUTING ---
+    /* --- 13. Routing Logic --- */
     const handleRouting = () => {
         const hash = window.location.hash;
         closeNav();
@@ -373,9 +411,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 13. GLOBAL EVENT LISTENERS ---
+    /* --- 14. Global Event Listeners --- */
     window.addEventListener('hashchange', handleRouting);
-    window.addEventListener('load', handleRouting);
+    // load event listener removed as fetchProjects calls handleRouting
 
     const closeModal = () => {
         imageModal.classList.remove('visible');
@@ -385,7 +423,6 @@ document.addEventListener('DOMContentLoaded', () => {
     imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeModal(); });
 
     appRoot.addEventListener('click', (e) => {
-        // Gallery Image Click
         const galleryImage = e.target.closest('.gallery-image');
         if (galleryImage) {
             modalImage.src = galleryImage.src;
@@ -393,7 +430,6 @@ document.addEventListener('DOMContentLoaded', () => {
             imageModal.classList.add('visible');
         }
 
-        // Project Tab Click
         const tabButton = e.target.closest('.tab-button');
         if (tabButton) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -407,7 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Load Preview Button Click
         const loadBtn = e.target.closest('.load-iframe-btn');
         if (loadBtn) {
             const container = loadBtn.closest('.iframe-container');
@@ -427,11 +462,13 @@ document.addEventListener('DOMContentLoaded', () => {
             loadBtn.textContent = 'Loading...';
         }
 
-        // Back To Top
         const backToTop = e.target.closest('.back-to-top');
         if (backToTop) {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
+
+    /* --- 15. Initialize --- */
+    fetchProjects();
 });
