@@ -3,7 +3,7 @@ const SUPABASE_PROJECT_URL = 'https://fidzotxqwlhzgztnskbu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZHpvdHhxd2xoemd6dG5za2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1ODk4MzMsImV4cCI6MjA2MjE2NTgzM30.aH0Hy1cGz-9pZRRsyS5_DId9IKCgalNo6d56aNwQisc';
 const FUNCTION_NAME = 'portfolio';
 
-const supabase = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
 let projectsData = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     /* --- 4. Data Fetching (Projects) --- */
     const fetchProjects = async () => {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('projects')
                 .select('*')
                 .order('display_order', { ascending: true });
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 id: p.id,
                 title: p.title,
                 synopsis: p.synopsis,
-                tags: p.tags,
+                tags: p.tags || [],
                 heroImage: p.hero_image,
                 altText: p.alt_text,
                 liveSiteLink: p.live_site_link,
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 process: p.process,
                 results: p.results,
                 githubLink: p.github_link,
-                gallery: p.gallery
+                gallery: p.gallery || []
             }));
 
             handleRouting();
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!counterEl) return;
 
         try {
-            const { data, error } = await supabase.rpc('increment_views');
+            const { data, error } = await supabaseClient.rpc('increment_views');
 
             if (error) throw error;
 
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             submitBtn.disabled = true;
 
             try {
-                const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
+                const { data, error } = await supabaseClient.functions.invoke(FUNCTION_NAME, {
                     body: {
                         name: nameInput.value.trim(),
                         email: emailInput.value.trim(),
@@ -460,20 +460,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             modalCaption.textContent = galleryImage.dataset.caption;
             imageModal.classList.add('visible');
         }
-
         const tabButton = e.target.closest('.tab-button');
         if (tabButton) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.iframe-container').forEach(container => {
-                container.classList.remove('active');
-            });
             tabButton.classList.add('active');
-            const targetContainer = document.getElementById(tabButton.dataset.target);
-            if (targetContainer) {
-                targetContainer.classList.add('active');
-            }
-        }
 
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                if (container.id === tabButton.dataset.target) {
+                    container.classList.add('active');
+                }
+                else {
+                    container.classList.remove('active');
+
+                    const iframe = container.querySelector('iframe');
+                    const placeholder = container.querySelector('.iframe-placeholder');
+                    const btn = container.querySelector('.load-iframe-btn');
+
+                    if (iframe) {
+                        iframe.onload = null;
+                        iframe.src = "";
+                        iframe.style.display = 'none';
+                    }
+                    if (placeholder) {
+                        placeholder.style.display = 'flex';
+                    }
+                    if (btn) {
+                        btn.textContent = 'Load Preview';
+                    }
+                }
+            });
+        }
         const loadBtn = e.target.closest('.load-iframe-btn');
         if (loadBtn) {
             const container = loadBtn.closest('.iframe-container');
@@ -481,16 +497,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const placeholder = container.querySelector('.iframe-placeholder');
 
             iframe.src = loadBtn.dataset.src;
-            iframe.onload = () => {
+            loadBtn.textContent = 'Loading...';
+
+            const finishLoading = () => {
+                if (loadBtn.textContent !== 'Loading...') return;
+
                 iframe.style.display = 'block';
                 placeholder.style.display = 'none';
             };
-            setTimeout(() => {
-                iframe.style.display = 'block';
-                placeholder.style.display = 'none';
-            }, 1000);
 
-            loadBtn.textContent = 'Loading...';
+            iframe.onload = finishLoading;
+            setTimeout(finishLoading, 1000);
         }
 
         const backToTop = e.target.closest('.back-to-top');
